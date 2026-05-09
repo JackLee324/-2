@@ -1,0 +1,1126 @@
+{
+  "prek": [
+    {
+      "week": "1",
+      "month": "Aug",
+      "wd": "5",
+      "events": "",
+      "unit": "Moving Safely",
+      "subunit": "Introduction to PE",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "2",
+      "month": "Sep",
+      "unit": "Moving Safely",
+      "subunit": "Responding to the Whistle \nStop, Look, & Listen",
+      "events": "",
+      "wd": "5",
+      "bgColor": "#f4a261",
+      "textColor": "#7c3a00"
+    },
+    {
+      "week": "3",
+      "month": "Sep",
+      "wd": "5",
+      "events": "PE Training (Thu 13:00-14:00)",
+      "unit": "Moving Safely",
+      "subunit": "Physical Fitness Test Practice",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "4",
+      "month": "Sep",
+      "wd": "5",
+      "events": "",
+      "unit": "Moving Safely",
+      "subunit": "Physical Fitness Test",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "5",
+      "month": "Sep",
+      "wd": "5",
+      "events": "K Life Skill Boot Camp (Mon-Fri)",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Run",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "6",
+      "month": "Sep",
+      "wd": "3",
+      "events": "Mid-Autumn Fete (Tue)",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Balance",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "7",
+      "month": "Oct",
+      "wd": "3",
+      "events": "",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Balance",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "8",
+      "month": "Oct",
+      "wd": "5",
+      "events": "",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Gallop",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "9",
+      "month": "Oct",
+      "wd": "5",
+      "events": "Autumn Outing Week (Tue-Fri)",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Jump",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "10",
+      "month": "Oct",
+      "wd": "5",
+      "events": "One-on-One Parents Meeting (Fri)",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Move (Various)",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "11",
+      "month": "Nov",
+      "wd": "5",
+      "events": "Fire Safety Week (Mon-Fri)",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Slide",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "12",
+      "month": "Nov",
+      "wd": "6",
+      "events": "Family PE Day (Sat)*",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Move (Various)",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "13",
+      "month": "Nov",
+      "wd": "5",
+      "events": "",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Leap",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "14",
+      "month": "Nov",
+      "wd": "6",
+      "events": "PD Day (Sat)",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Hop",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "15",
+      "month": "Dec",
+      "wd": "5",
+      "events": "",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Skip",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "16",
+      "month": "Dec",
+      "wd": "5",
+      "events": "",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Move (Various)",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "17",
+      "month": "Dec",
+      "wd": "5",
+      "events": "Winter Potluck (Fri)",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Move (Various)",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "holiday": "🎄 Winter Break & New Year Holiday"
+    },
+    {
+      "week": "18",
+      "month": "Jan",
+      "wd": "6",
+      "events": "",
+      "unit": "Fundamental Movement Skills",
+      "subunit": "Physical Fitness Test Practice",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "19",
+      "month": "Jan",
+      "wd": "5",
+      "events": "",
+      "unit": "Manipulative Skills",
+      "subunit": "Balloon Play",
+      "bgColor": "#1D3557",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "20",
+      "month": "Jan",
+      "wd": "5",
+      "events": "",
+      "unit": "Manipulative Skills",
+      "subunit": "I Can Throw (Underhand)",
+      "bgColor": "#1D3557",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "21",
+      "month": "Jan",
+      "wd": "5",
+      "events": "",
+      "unit": "Manipulative Skills",
+      "subunit": "Red Packet Relay Races (CNY theme)",
+      "bgColor": "#1D3557",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "22",
+      "month": "Feb",
+      "wd": "6",
+      "events": "Spring Festival Fair (Sat)",
+      "unit": "Manipulative Skills",
+      "subunit": "No Classes",
+      "bgColor": "#1D3557",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "holiday": "🧧 Chinese Spring Festival Holiday"
+    },
+    {
+      "semester": "Semester 2: Operation & Collaboration Breakthrough"
+    },
+    {
+      "week": "23",
+      "month": "Mar",
+      "unit": "Olympic Month",
+      "subunit": "30/50m Sprint & 30/50m Cycling",
+      "events": "Preparation Day (Sun)",
+      "wd": "6",
+      "bgColor": "#d357fe",
+      "textColor": "#ffffff"
+    },
+    {
+      "week": "24",
+      "month": "Mar",
+      "unit": "Olympic Month",
+      "subunit": "20m Balance\nBunny Hop\nSpeed Bouncing\nOverhand Throw for Distance\nStanding Long Jump \nBar Hang",
+      "events": "",
+      "wd": "5",
+      "bgColor": "#e63946",
+      "textColor": "#ffffff"
+    },
+    {
+      "week": "25",
+      "month": "Mar",
+      "wd": "5",
+      "events": "",
+      "unit": "Olympic Month",
+      "subunit": "30/50m Hurdles & 5x30m Shuttle Relay",
+      "bgColor": "#E63946",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "26",
+      "month": "Mar",
+      "wd": "5",
+      "events": "PD Day (Fri)",
+      "unit": "Olympic Month",
+      "subunit": "All 8 Olympic Month events/competitions",
+      "bgColor": "#E63946",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "27",
+      "month": "Mar",
+      "wd": "4",
+      "events": "Olympic Finals (Mon-Tue)*",
+      "unit": "Olympic Month",
+      "subunit": "Olympic Month Finals",
+      "bgColor": "#E63946",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "holiday": "🌸 Tomb Sweeping Holiday"
+    },
+    {
+      "week": "28",
+      "month": "Apr",
+      "wd": "6",
+      "events": "Spring Outing/Boot Camp (Mon-Fri)",
+      "unit": "Manipulative Skills",
+      "subunit": "I Can Throw (Overhand)",
+      "bgColor": "#1D3557",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "29",
+      "month": "Apr",
+      "wd": "5",
+      "events": "",
+      "unit": "Manipulative Skills",
+      "subunit": "I Can Roll",
+      "bgColor": "#1D3557",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "30",
+      "month": "Apr",
+      "wd": "5",
+      "events": "One-on-One Parents Meeting (Fri)",
+      "unit": "Manipulative Skills",
+      "subunit": "Basketball Skills",
+      "bgColor": "#1D3557",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "31",
+      "month": "Apr",
+      "wd": "4",
+      "events": "",
+      "unit": "Manipulative Skills",
+      "subunit": "I Can Hit (Bat & Ball)",
+      "bgColor": "#1D3557",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "holiday": "Labor Day Holiday"
+    },
+    {
+      "week": "32",
+      "month": "May",
+      "wd": "3",
+      "events": "",
+      "unit": "Gymnastics",
+      "subunit": "Individual Balances (Point & Patch)",
+      "bgColor": "#1D3557",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "33",
+      "month": "May",
+      "wd": "5",
+      "events": "",
+      "unit": "Gymnastics",
+      "subunit": "Individual Balances (Point & Patch)",
+      "bgColor": "#1D3557",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "34",
+      "month": "May",
+      "wd": "5",
+      "events": "",
+      "unit": "Fundamental Movement Skills",
+      "subunit": "Physical Fitness Test",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "35",
+      "month": "May",
+      "wd": "5",
+      "events": "Children's Day (Fri)",
+      "unit": "Gymnastics",
+      "subunit": "Rolls, Jumps, & Swings",
+      "bgColor": "#1D3557",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "36",
+      "month": "Jun",
+      "wd": "5",
+      "events": "",
+      "unit": "Gymnastics",
+      "subunit": "Rolls, Jumps, & Swings",
+      "bgColor": "#1D3557",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "37",
+      "month": "Jun",
+      "wd": "5",
+      "events": "",
+      "unit": "Gymnastics",
+      "subunit": "Rolls, Jumps, & Swings",
+      "bgColor": "#1D3557",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "38",
+      "month": "Jun",
+      "wd": "4",
+      "events": "Graduation Ceremony (Tue-Wed), Wrapping Up Day (Thu)",
+      "unit": "Gymnastics",
+      "subunit": "No Classes",
+      "bgColor": "#1D3557",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "holiday": "☀️ Summer Holiday"
+    }
+  ],
+  "k": [
+    {
+      "week": "1",
+      "month": "Aug",
+      "unit": "Moving Safely",
+      "subunit": "Safe Bubble Concept\nMoving into Open Space\nChanging Directions",
+      "events": "",
+      "wd": "5"
+    },
+    {
+      "week": "2",
+      "month": "Sep",
+      "unit": "Moving Safely",
+      "subunit": "Safe Bubble Concept\nMoving into Open Space\nChanging Directions",
+      "events": "",
+      "wd": "5"
+    },
+    {
+      "week": "3",
+      "month": "Sep",
+      "wd": "5",
+      "events": "PE Training (Thu 13:00-14:00)",
+      "unit": "Moving Safely",
+      "subunit": "Physical Fitness Test Practice"
+    },
+    {
+      "week": "4",
+      "month": "Sep",
+      "wd": "5",
+      "events": "",
+      "unit": "Moving Safely",
+      "subunit": "Physical Fitness Test"
+    },
+    {
+      "week": "5",
+      "month": "Sep",
+      "wd": "5",
+      "events": "K Life Skill Boot Camp (Mon-Fri)",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Run"
+    },
+    {
+      "week": "6",
+      "month": "Sep",
+      "wd": "3",
+      "events": "Mid-Autumn Fete (Mon)",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Balance"
+    },
+    {
+      "week": "7",
+      "month": "Oct",
+      "wd": "3",
+      "events": "",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Balance"
+    },
+    {
+      "week": "8",
+      "month": "Oct",
+      "wd": "5",
+      "events": "",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Gallop"
+    },
+    {
+      "week": "9",
+      "month": "Oct",
+      "wd": "5",
+      "events": "Autumn Outing Week (Tue-Fri)",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Jump"
+    },
+    {
+      "week": "10",
+      "month": "Oct",
+      "wd": "5",
+      "events": "One-on-One Parents Meeting (Fri)",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Move (Various)"
+    },
+    {
+      "week": "11",
+      "month": "Nov",
+      "wd": "5",
+      "events": "Fire Safety Week (Mon-Fri)",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Slide"
+    },
+    {
+      "week": "12",
+      "month": "Nov",
+      "wd": "6",
+      "events": "Family PE Day (Sat)*",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Move (Various)"
+    },
+    {
+      "week": "13",
+      "month": "Nov",
+      "wd": "5",
+      "events": "",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Leap"
+    },
+    {
+      "week": "14",
+      "month": "Nov",
+      "wd": "6",
+      "events": "PD Day (Sat)",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Hop"
+    },
+    {
+      "week": "15",
+      "month": "Dec",
+      "wd": "5",
+      "events": "",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Skip"
+    },
+    {
+      "week": "16",
+      "month": "Dec",
+      "wd": "5",
+      "events": "",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "Teamwork and Cooperation"
+    },
+    {
+      "week": "17",
+      "month": "Dec",
+      "wd": "5",
+      "events": "Winter Potluck (Fri)",
+      "unit": "Locomotor Movement Skills",
+      "subunit": "I Can Move (Various)"
+    },
+    {
+      "holiday": "🎄 Winter Break & New Year Holiday"
+    },
+    {
+      "week": "18",
+      "month": "Jan",
+      "wd": "6",
+      "events": "",
+      "unit": "Fundamental Movement Skills",
+      "subunit": "Physical Fitness Test Practice"
+    },
+    {
+      "week": "19",
+      "month": "Jan",
+      "wd": "5",
+      "events": "",
+      "unit": "Manipulative Skills",
+      "subunit": "Balloon Play"
+    },
+    {
+      "week": "20",
+      "month": "Jan",
+      "wd": "5",
+      "events": "",
+      "unit": "Manipulative Skills",
+      "subunit": "I Can Throw (Underhand)"
+    },
+    {
+      "week": "21",
+      "month": "Jan",
+      "wd": "5",
+      "events": "",
+      "unit": "Manipulative Skills",
+      "subunit": "Red Packet Relay Races (CNY theme)"
+    },
+    {
+      "week": "22",
+      "month": "Feb",
+      "wd": "6",
+      "events": "Spring Festival Fair (Sat)",
+      "unit": "Manipulative Skills",
+      "subunit": "No Classes"
+    },
+    {
+      "holiday": "🧧 Chinese Spring Festival Holiday"
+    },
+    {
+      "semester": "Semester 2: Operation & Collaboration Breakthrough"
+    },
+    {
+      "week": "23",
+      "month": "Mar",
+      "wd": "6",
+      "events": "Preparation Day (Sun)",
+      "unit": "Olympic Month",
+      "subunit": "50m Sprint & 50m Cycling"
+    },
+    {
+      "week": "24",
+      "month": "Mar",
+      "unit": "Olympic Month",
+      "subunit": "20m Balance & Bunny Hop\nSpeed Bouncing\nOverhand Throw for Distance\n Standing Long Jump",
+      "events": "",
+      "wd": "5"
+    },
+    {
+      "week": "25",
+      "month": "Mar",
+      "wd": "5",
+      "events": "",
+      "unit": "Olympic Month",
+      "subunit": "50m Hurdles, 3x67m (200m) Relay, and 200m Cycling"
+    },
+    {
+      "week": "26",
+      "month": "Mar",
+      "wd": "5",
+      "events": "PD Day (Fri)",
+      "unit": "Olympic Month",
+      "subunit": "Basketball Dribble & Shoot Showdown and Tug of War"
+    },
+    {
+      "week": "27",
+      "month": "Mar",
+      "wd": "4",
+      "events": "Olympic Finals (Mon-Tue)*",
+      "unit": "Olympic Month",
+      "subunit": "Olympic Month Finals"
+    },
+    {
+      "holiday": "🌸 Tomb Sweeping Holiday"
+    },
+    {
+      "week": "28",
+      "month": "Apr",
+      "wd": "6",
+      "events": "Spring Outing/Boot Camp (Mon-Fri)",
+      "unit": "Manipulative Skills",
+      "subunit": "I Can Throw (Overhand)"
+    },
+    {
+      "week": "29",
+      "month": "Apr",
+      "wd": "5",
+      "events": "",
+      "unit": "Manipulative Skills",
+      "subunit": "I Can Roll"
+    },
+    {
+      "week": "30",
+      "month": "Apr",
+      "wd": "5",
+      "events": "One-on-One Parents Meeting (Fri)",
+      "unit": "Manipulative Skills",
+      "subunit": "Basketball Skills"
+    },
+    {
+      "week": "31",
+      "month": "Apr",
+      "wd": "4",
+      "events": "",
+      "unit": "Manipulative Skills",
+      "subunit": "I Can Hit (Bat & Ball)"
+    },
+    {
+      "holiday": "Labor Day Holiday"
+    },
+    {
+      "week": "32",
+      "month": "May",
+      "wd": "3",
+      "events": "",
+      "unit": "Gymnastics",
+      "subunit": "Individual Balances (Point & Patch)"
+    },
+    {
+      "week": "33",
+      "month": "May",
+      "wd": "5",
+      "events": "",
+      "unit": "Gymnastics",
+      "subunit": "Individual & Partner Balances"
+    },
+    {
+      "week": "34",
+      "month": "May",
+      "wd": "5",
+      "events": "",
+      "unit": "Fundamental Movement Skills",
+      "subunit": "Physical Fitness Test"
+    },
+    {
+      "week": "35",
+      "month": "May",
+      "wd": "5",
+      "events": "Children's Day (Fri)",
+      "unit": "Gymnastics",
+      "subunit": "Rolls, Jumps, & Swings"
+    },
+    {
+      "week": "36",
+      "month": "Jun",
+      "wd": "5",
+      "events": "",
+      "unit": "Gymnastics",
+      "subunit": "Rolls, Jumps, & Swings"
+    },
+    {
+      "week": "37",
+      "month": "Jun",
+      "wd": "5",
+      "events": "",
+      "unit": "Gymnastics",
+      "subunit": "Rolls, Jumps, & Swings"
+    },
+    {
+      "week": "38",
+      "month": "Jun",
+      "wd": "4",
+      "events": "Graduation Ceremony (Tue-Wed), Wrapping Up Day (Thu)",
+      "unit": "Gymnastics",
+      "subunit": "No Classes"
+    },
+    {
+      "holiday": "☀️ Summer Holiday"
+    }
+  ],
+  "climbing": [
+    {
+      "week": "1",
+      "month": "Aug",
+      "wd": "5",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "No classes - WC starts in Week 2.",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "2",
+      "month": "Sep",
+      "wd": "5",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "Introduction. Level 3",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "3",
+      "month": "Sep",
+      "wd": "5",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "Climbing Safely. Level 3-4",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "4",
+      "month": "Sep",
+      "wd": "5",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "Climbing Safely. Level 3-4",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "5",
+      "month": "Sep",
+      "wd": "5",
+      "events": "K Life Skill Boot Camp (Mon-Fri)",
+      "unit": "Climbing",
+      "subunit": "No classes. K Life Skill Boot Camp",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "6",
+      "month": "Sep",
+      "wd": "3",
+      "events": "Mid-Autumn Fete (Tue)",
+      "unit": "Climbing",
+      "subunit": "Climbing Safely. Level 4-5",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "7",
+      "month": "Oct",
+      "wd": "3",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "Climbing Safely. Level 4-5",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "8",
+      "month": "Oct",
+      "wd": "5",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "Climbing Safely. Level 5-6",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "9",
+      "month": "Oct",
+      "wd": "5",
+      "events": "Autumn Outing Week (Tue-Fri)",
+      "unit": "Climbing",
+      "subunit": "Progress Tracker",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "10",
+      "month": "Oct",
+      "wd": "5",
+      "events": "One-on-One Parents Meeting (Fri)",
+      "unit": "Climbing",
+      "subunit": "Setting Targets",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "11",
+      "month": "Nov",
+      "wd": "5",
+      "events": "Fire Safety Week (Mon-Fri)",
+      "unit": "Climbing",
+      "subunit": "Technique (legs before arms approach)",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "12",
+      "month": "Nov",
+      "wd": "6",
+      "events": "PD Day (Sat)",
+      "unit": "Climbing",
+      "subunit": "Technique (foot placement - toes on the foot holds)",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "13",
+      "month": "Nov",
+      "wd": "5",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "Technique (step up, stand up, reach up sequence)",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "14",
+      "month": "Nov",
+      "wd": "6",
+      "events": "Family PE Day (Sat)*",
+      "unit": "Climbing",
+      "subunit": "Technique (feet below body, hands above head)",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "15",
+      "month": "Dec",
+      "wd": "5",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "Technique (straight arms are happy arms)",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "16",
+      "month": "Dec",
+      "wd": "5",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "Technique (climbing sideways/side-stepping)",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "17",
+      "month": "Dec",
+      "wd": "5",
+      "events": "Winter Potluck (Fri)",
+      "unit": "Climbing",
+      "subunit": "Technique (route planning and wall scanning)",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "holiday": "🎄 寒假 Winter Break & New Year Holiday"
+    },
+    {
+      "week": "18",
+      "month": "Jan",
+      "wd": "6",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "Technique (review)",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "19",
+      "month": "Jan",
+      "wd": "5",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "I can do it, I will do it, I'm going to do it",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "20",
+      "month": "Jan",
+      "wd": "5",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "If I think I can, I will",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "21",
+      "month": "Jan",
+      "wd": "5",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "100 Days of School Climbing Challenge",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "22",
+      "month": "Feb",
+      "wd": "6",
+      "events": "Spring Festival Fair (Sat)",
+      "unit": "Climbing",
+      "subunit": "No classes",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "holiday": "🧧 Chinese Spring Festival Holiday"
+    },
+    {
+      "semester": "Semester 2: Water & Speed Progression"
+    },
+    {
+      "week": "23",
+      "month": "Mar",
+      "wd": "6",
+      "events": "Preparation Day (Sun)",
+      "unit": "Climbing",
+      "subunit": "New Year, New Targets",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "24",
+      "month": "Mar",
+      "wd": "5",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "Speed Climbing",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "25",
+      "month": "Mar",
+      "wd": "5",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "Speed Climbing",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "26",
+      "month": "Mar",
+      "wd": "5",
+      "events": "PD Day (Fri)",
+      "unit": "Climbing",
+      "subunit": "Speed Climbing",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "27",
+      "month": "Mar",
+      "wd": "4",
+      "events": "Olympic Finals (Mon-Tue)*",
+      "unit": "Climbing",
+      "subunit": "Olympic Month Finals",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "holiday": "🌸 Tomb Sweeping Holiday"
+    },
+    {
+      "week": "28",
+      "month": "Apr",
+      "wd": "6",
+      "events": "Spring Outing/Boot Camp (Mon-Fri)",
+      "unit": "Climbing",
+      "subunit": "Individual Leveling Up Challenge",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "29",
+      "month": "Apr",
+      "wd": "5",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "Treasure Hide & Hunt",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "30",
+      "month": "Apr",
+      "wd": "5",
+      "events": "One-on-One Parents Meeting (Fri)",
+      "unit": "Climbing",
+      "subunit": "Treasure Hide & Hunt",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "week": "31",
+      "month": "Apr",
+      "wd": "4",
+      "events": "",
+      "unit": "Climbing",
+      "subunit": "Last Week Climbing Challenge",
+      "bgColor": "#F4A261",
+      "textColor": "#7C3A00"
+    },
+    {
+      "holiday": "Labor Day Holiday"
+    },
+    {
+      "week": "32",
+      "month": "May",
+      "wd": "3",
+      "events": "",
+      "unit": "Swimming",
+      "subunit": "Pool Orientation & Grouping",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "33",
+      "month": "May",
+      "wd": "5",
+      "events": "",
+      "unit": "Swimming",
+      "subunit": "Water Manipulation & Floating",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "34",
+      "month": "May",
+      "wd": "5",
+      "events": "",
+      "unit": "Swimming",
+      "subunit": "Submerging & Breathing",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "35",
+      "month": "May",
+      "wd": "5",
+      "events": "Children's Day (Fri)",
+      "unit": "Swimming",
+      "subunit": "Dragon Boat Races",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "36",
+      "month": "Jun",
+      "wd": "5",
+      "events": "",
+      "unit": "Swimming",
+      "subunit": "Kicking & Gliding",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "37",
+      "month": "Jun",
+      "wd": "5",
+      "events": "",
+      "unit": "Swimming",
+      "subunit": "Backstroke",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "week": "38",
+      "month": "Jun",
+      "wd": "4",
+      "events": "Graduation Ceremony (Tue-Wed), Wrapping Up Day (Thu)",
+      "unit": "Swimming",
+      "subunit": "No Classes",
+      "bgColor": "#2A9D8F",
+      "textColor": "#FFFFFF"
+    },
+    {
+      "holiday": "☀️ Summer Holiday"
+    }
+  ]
+}

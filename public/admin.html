@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PE CMS — 管理后台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
+        body { background: #F1F5F9; margin: 0; }
+        .zh { font-size: 1.1em; font-weight: 700; color: #1D3557; }
+        .en { font-size: 0.75em; color: #6C757D; }
+
+        /* Header */
+        header { background: white; border-bottom: 1px solid #E2E8F0; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+        header h1 { font-size: 1.2rem; color: #1e293b; margin: 0; }
+
+        /* Tab nav */
+        .tab-nav { padding: 1.5rem 2rem 0; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .tab-btn { padding: 0.6rem 1.2rem; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; background: #E2E8F0; color: #64748B; transition: all 0.2s; }
+        .tab-btn.active { background: #1D3557; color: white; box-shadow: 0 2px 8px rgba(29,53,87,0.3); }
+
+        /* Toolbar */
+        .toolbar { padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+        .toolbar-left { font-size: 0.85rem; color: #64748B; }
+        .toolbar-left strong { color: #1e293b; }
+        .toolbar-right { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .btn { padding: 0.5rem 1rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.8rem; transition: all 0.2s; }
+        .btn-primary { background: #2A9D8F; color: white; }
+        .btn-primary:hover { background: #238B7E; }
+        .btn-amber { background: #F59E0B; color: white; }
+        .btn-amber:hover { background: #D97706; }
+        .btn-slate { background: #475569; color: white; }
+        .btn-slate:hover { background: #334155; }
+        .btn-danger { background: #DC2626; color: white; }
+        .btn-danger:hover { background: #B91C1C; }
+        .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.75rem; }
+
+        /* Table */
+        .table-wrap { max-width: 1280px; margin: 0 auto 3rem; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        thead th { background: #F8FAFC; padding: 0.75rem 1rem; text-align: left; font-size: 0.7rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #E2E8F0; }
+        tbody tr { border-bottom: 1px solid #F1F5F9; transition: background 0.15s; }
+        tbody tr:hover { background: #F8FAFC; }
+        td { padding: 0.7rem 1rem; vertical-align: middle; }
+        .week-badge { display: inline-block; background: #1D3557; color: white; padding: 3px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
+
+        /* Unit badge */
+        .unit-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: opacity 0.2s; }
+        .unit-badge:hover { opacity: 0.8; }
+
+        /* Color swatch in table */
+        .color-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.15); vertical-align: middle; margin-right: 4px; }
+
+        /* Subunit preview */
+        .subunit-preview { color: #475569; font-size: 0.82rem; max-width: 500px; line-height: 1.5; }
+        .subunit-preview .line { margin-bottom: 2px; }
+        .subunit-preview .title { font-weight: 600; color: #1D3557; }
+        .subunit-preview .desc { color: #94A3B8; margin-left: 6px; }
+        .subunit-preview .newline { display: block; height: 6px; }
+
+        /* Holiday/Semester rows */
+        .row-holiday td { background: rgba(245,158,11,0.08); color: #92400E; text-align: center; font-style: italic; padding: 0.8rem; font-size: 0.85rem; }
+        .row-semester td { background: rgba(29,53,87,0.06); color: #1D3557; text-align: center; font-weight: 700; font-size: 0.85rem; padding: 0.8rem; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+        .modal-overlay.hidden { display: none; }
+        .modal { background: white; border-radius: 16px; overflow: hidden; width: 100%; max-width: 580px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
+        .modal-header { padding: 1.2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+        .modal-header.edit { background: #1D3557; color: white; }
+        .modal-header.add { background: #2A9D8F; color: white; }
+        .modal-header.holiday { background: #F59E0B; color: white; }
+        .modal-header.semester { background: #475569; color: white; }
+        .modal-header h3 { margin: 0; font-size: 1rem; }
+        .modal-close { background: none; border: none; color: rgba(255,255,255,0.7); font-size: 1.5rem; cursor: pointer; line-height: 1; }
+        .modal-close:hover { color: white; }
+        .modal-body { padding: 1.5rem; max-height: 70vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+
+        /* Form fields */
+        .field { display: flex; flex-direction: column; gap: 0.3rem; }
+        .field label { font-size: 0.72rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; }
+        .field label .hint { font-weight: 400; text-transform: none; letter-spacing: 0; color: #94A3B8; }
+        .field input, .field select, .field textarea { width: 100%; padding: 0.6rem 0.8rem; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 0.85rem; font-family: inherit; transition: border-color 0.2s; background: white; }
+        .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #1D3557; box-shadow: 0 0 0 3px rgba(29,53,87,0.08); }
+        .field textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+        /* Color picker section */
+        .color-section { background: #F8FAFC; border-radius: 10px; padding: 1rem; border: 1px solid #E2E8F0; }
+        .color-section-title { font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .color-row { display: flex; gap: 1.5rem; }
+        .color-field { display: flex; align-items: center; gap: 0.5rem; }
+        .color-field label { font-size: 0.75rem; color: #64748B; font-weight: 600; white-space: nowrap; }
+        .color-field input[type="color"] { width: 44px; height: 36px; border: 1px solid #E2E8F0; border-radius: 8px; padding: 2px; cursor: pointer; background: white; }
+        .color-field input[type="text"] { width: 90px; padding: 0.4rem 0.6rem; border: 1px solid #E2E8F0; border-radius: 6px; font-size: 0.8rem; font-family: monospace; }
+
+        /* Row type toggle */
+        .row-type-section { background: #F8FAFC; border-radius: 10px; padding: 1rem; border: 1px solid #E2E8F0; }
+        .row-type-section > label { display: block; font-size: 0.72rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+        .radio-group { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .radio-group label { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.85rem; color: #475569; font-weight: 500; }
+        .radio-group input { accent-color: #1D3557; }
+
+        /* Modal footer */
+        .modal-footer { padding: 1rem 1.5rem; display: flex; gap: 0.75rem; border-top: 1px solid #F1F5F9; }
+        .modal-footer button { flex: 1; padding: 0.7rem; border-radius: 8px; border: none; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+        .btn-cancel { background: #F1F5F9; color: #64748B; }
+        .btn-cancel:hover { background: #E2E8F0; }
+        .btn-save { background: #1D3557; color: white; }
+        .btn-save:hover { background: #152943; }
+
+        /* Preview box */
+        .preview-box { background: #F8FAFC; border-radius: 8px; padding: 0.75rem; border: 1px solid #E2E8F0; min-height: 60px; }
+        .preview-label { font-size: 0.7rem; color: #94A3B8; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .preview-tag { display: inline-block; padding: 4px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; }
+
+        /* Toast */
+        #toast { position: fixed; bottom: 2rem; right: 2rem; padding: 0.8rem 1.4rem; border-radius: 10px; color: white; font-weight: 600; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; z-index: 9999; pointer-events: none; }
+        #toast.show { opacity: 1; }
+        #toast.success { background: #2A9D8F; }
+        #toast.error { background: #DC2626; }
+
+        /* Delete modal */
+        .delete-modal { background: white; border-radius: 16px; overflow: hidden; width: 100%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
+        .delete-modal .modal-header { background: #FEF2F2; border-bottom: 1px solid #FECACA; }
+        .delete-modal .modal-header h3 { color: #991B1B; }
+        .delete-modal .modal-body { padding: 1.5rem; }
+        .delete-modal .modal-body p { color: #64748B; font-size: 0.9rem; margin: 0 0 1rem; }
+        .delete-modal .modal-footer { border-top: none; padding-top: 0; }
+
+        /* Hidden sections */
+        .hidden { display: none !important; }
+
+        /* Scrollbar styling */
+        .modal-body::-webkit-scrollbar { width: 6px; }
+        .modal-body::-webkit-scrollbar-track { background: #F1F5F9; }
+        .modal-body::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+    <div>
+        <h1>⚙️ PE课程管理后台</h1>
+        <span class="en">Tsinglan Kindergarten · Physical Education CMS</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+        <a href="/" target="_blank" style="font-size:0.82rem;color:#64748B;text-decoration:none;">👁 预览公共页</a>
+    </div>
+</header>
+
+<!-- Tab Navigation -->
+<div class="tab-nav">
+    <button class="tab-btn active" data-tab="prek" onclick="switchTab('prek')">🧒 PreK PE</button>
+    <button class="tab-btn" data-tab="k" onclick="switchTab('k')">🧒 K1–K2 PE</button>
+    <button class="tab-btn" data-tab="climbing" onclick="switchTab('climbing')">🧗 Climbing & Swimming</button>
+    <button class="tab-btn" data-tab="gallery" onclick="switchTab('gallery')">🏅 奥林匹克相册</button>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+    <div class="toolbar-left">
+        <strong id="rowCount">—</strong> 条数据行 &nbsp;|&nbsp; 当前标签：<strong id="currentTabLabel">PreK PE</strong>
+    </div>
+    <div class="toolbar-right">
+        <button class="btn btn-primary" onclick="showAddModal()">➕ 添加数据行</button>
+        <button class="btn btn-amber" onclick="showAddModal('holiday')">🎉 添加假期行</button>
+        <button class="btn btn-slate" onclick="showAddModal('semester')">📋 添加学期标题</button>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="table-wrap" style="max-width:1280px;margin:0 auto 3rem;background:white;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+    <table>
+        <thead>
+            <tr>
+                <th style="width:60px;">Week</th>
+                <th style="width:60px;">Month</th>
+                <th style="width:220px;">Unit</th>
+                <th>Sub-Unit 内容</th>
+                <th style="width:100px;text-align:center;">操作</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <tr><td colspan="5" style="text-align:center;padding:2rem;color:#94A3B8;">加载中...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Gallery Table (hidden unless gallery tab active) -->
+<div id="gallerySection" class="table-wrap hidden" style="max-width:1280px;margin:0 auto 3rem;background:white;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+    <table>
+        <thead>
+            <tr>
+                <th style="width:60px;">类型</th>
+                <th style="width:180px;">预览</th>
+                <th>说明文字</th>
+                <th style="width:120px;">日期</th>
+                <th style="width:100px;text-align:center;">操作</th>
+            </tr>
+        </thead>
+        <tbody id="galleryBody">
+            <tr><td colspan="5" style="text-align:center;padding:2rem;color:#94A3B8;">加载中...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Gallery Upload Form -->
+<div id="galleryUploadSection" class="table-wrap hidden" style="max-width:600px;margin:0 auto 2rem;background:white;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);padding:1.5rem;">
+    <h3 style="margin:0 0 1rem;font-size:0.95rem;color:#1D3557;">📤 上传照片或视频</h3>
+    <form id="galleryUploadForm" onsubmit="handleGalleryUpload(event)" style="display:flex;flex-direction:column;gap:1rem;">
+        <div class="field" style="margin:0;">
+            <label>选择文件 <span class="hint">（支持 JPG, PNG, WEBP, GIF, HEIC, MP4, MOV, WEBM）</span></label>
+            <input type="file" id="galleryFileInput" accept="image/*,video/*" required onchange="previewGalleryFile(this)">
+        </div>
+        <div id="galleryFilePreview" style="display:none;">
+            <video id="galleryVideoPreview" style="max-height:160px;border-radius:8px;display:none;" controls></video>
+            <img id="galleryImgPreview" style="max-height:160px;border-radius:8px;display:none;" alt="preview">
+        </div>
+        <div class="field-row" style="margin:0;">
+            <div class="field" style="margin:0;">
+                <label>说明文字</label>
+                <input id="galleryCaption" type="text" placeholder="如：W38 奥林匹克闭幕式">
+            </div>
+            <div class="field" style="margin:0;">
+                <label>日期</label>
+                <input id="galleryDate" type="text" placeholder="如：2026.03.31">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="galleryUploadBtn">⬆️ 上传</button>
+    </form>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════ MODAL ══════════════════════════════════════ -->
+<div id="modal" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+        <div class="modal-header edit" id="modalHeader">
+            <h3 id="modalTitle">➕ 添加数据行</h3>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="modalForm" onsubmit="handleFormSubmit(event)">
+            <div class="modal-body">
+
+                <!-- Row Type Toggle (only for add) -->
+                <div class="row-type-section" id="rowTypeSection">
+                    <label>行类型</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="rowType" value="week" checked onchange="toggleRowTypeFields()"> 📋 数据行</label>
+                        <label><input type="radio" name="rowType" value="holiday" onchange="toggleRowTypeFields()"> 🎉 假期行</label>
+                        <label><input type="radio" name="rowType" value="semester" onchange="toggleRowTypeFields()"> 📋 学期标题</label>
+                    </div>
+                </div>
+
+                <!-- Fields: Week Row -->
+                <div id="weekRowFields">
+                    <div class="field-row">
+                        <div class="field">
+                            <label>Week *</label>
+                            <input id="f_week" type="text" placeholder="e.g. 1" required>
+                        </div>
+                        <div class="field">
+                            <label>Month *</label>
+                            <input id="f_month" type="text" placeholder="e.g. Aug" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Unit Focus *</label>
+                        <select id="f_unit" required onchange="onUnitChange()">
+                            <option value="">— 选择 Unit —</option>
+                            <option value="Moving Safely">Moving Safely</option>
+                            <option value="Locomotor Movement Skills">Locomotor Movement Skills</option>
+                            <option value="Fundamental Movement Skills">Fundamental Movement Skills</option>
+                            <option value="Manipulative Skills">Manipulative Skills</option>
+                            <option value="Olympic Month">Olympic Month</option>
+                            <option value="Gymnastics">Gymnastics</option>
+                            <option value="Climbing">Climbing</option>
+                            <option value="Swimming">Swimming</option>
+                        </select>
+                    </div>
+
+                    <!-- Color Picker -->
+                    <div class="color-section">
+                        <div class="color-section-title">🎨 标签颜色自定义（可选）</div>
+                        <div class="color-row">
+                            <div class="color-field">
+                                <label>背景色</label>
+                                <input type="color" id="f_bgColor" value="#1D3557" oninput="syncColorText('bg')">
+                                <input type="text" id="f_bgColorText" value="#1D3557" maxlength="7" placeholder="#hex" oninput="syncColorPicker('bg')">
+                            </div>
+                            <div class="color-field">
+                                <label>文字色</label>
+                                <input type="color" id="f_textColor" value="#FFFFFF" oninput="syncColorText('text')">
+                                <input type="text" id="f_textColorText" value="#FFFFFF" maxlength="7" placeholder="#hex" oninput="syncColorPicker('text')">
+                            </div>
+                            <button type="button" class="btn btn-sm btn-slate" onclick="resetColors()" style="margin-left:auto;">重置默认</button>
+                        </div>
+                        <!-- Color preview -->
+                        <div class="preview-box" style="margin-top:0.75rem;">
+                            <div class="preview-label">标签预览</div>
+                            <span id="colorPreview" class="preview-tag" style="background:#1D3557;color:#FFFFFF;">Moving Safely</span>
+                        </div>
+                    </div>
+
+                    <!-- Sub-Unit with textarea -->
+                    <div class="field">
+                        <label>Sub-Unit 内容 * <span class="hint">（支持多行：每行 = 一段，回车自动分段显示）</span></label>
+                        <textarea id="f_subunit" rows="5" placeholder="单行示例：I Can Run&#10;多行示例：&#10;I Can Run (Focus on form)&#10;I Can Balance (Core stability)" required></textarea>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label>Events 备注</label>
+                            <input id="f_events" type="text" placeholder="如：PD Day (Fri)">
+                        </div>
+                        <div class="field">
+                            <label>WD（每周天数）</label>
+                            <input id="f_wd" type="number" min="1" max="7" placeholder="e.g. 5">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fields: Holiday Row -->
+                <div id="holidayRowFields" class="hidden">
+                    <div class="field">
+                        <label>假期名称 *</label>
+                        <input id="f_holiday" type="text" placeholder='如：🎄 Winter Break & New Year Holiday'>
+                    </div>
+                </div>
+
+                <!-- Fields: Semester Row -->
+                <div id="semesterRowFields" class="hidden">
+                    <div class="field">
+                        <label>学期标题 *</label>
+                        <input id="f_semester" type="text" placeholder='如：Semester 2: Operation & Collaboration Breakthrough'>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeModal()">取消</button>
+                <button type="submit" class="btn-save" id="modalSubmitBtn">💾 保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div id="deleteModal" class="modal-overlay hidden" onclick="if(event.target===this)closeDeleteModal()">
+    <div class="delete-modal">
+        <div class="modal-header">
+            <h3>⚠️ 确认删除</h3>
+            <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="deleteModalMsg">确定要删除这条记录吗？此操作不可撤销。</p>
+            <div style="display:flex;gap:0.75rem;">
+                <button class="btn-cancel" onclick="closeDeleteModal()" style="flex:1;padding:0.7rem;border-radius:8px;border:none;font-weight:700;cursor:pointer;background:#F1F5F9;color:#64748B;">取消</button>
+                <button class="btn-danger" onclick="confirmDelete()" style="flex:1;padding:0.7rem;border-radius:8px;border:none;font-weight:700;cursor:pointer;background:#DC2626;color:white;">🗑 删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = 'http://localhost:3000/api/curriculum';
+let currentTab = 'prek';
+let allData = { prek: [], k: [], climbing: [] };
+let editTarget = null;   // { tab, index }
+let deleteTarget = null; // { tab, index }
+
+// Default color map
+const COLOR_DEFAULTS = {
+    'Moving Safely':               { bg: '#F4A261', text: '#7C3A00' },
+    'Locomotor Movement Skills':   { bg: '#2A9D8F', text: '#FFFFFF' },
+    'Locomotor Movement':          { bg: '#2A9D8F', text: '#FFFFFF' },
+    'Fundamental Movement Skills': { bg: '#2A9D8F', text: '#FFFFFF' },
+    'Manipulative Skills':         { bg: '#1D3557', text: '#FFFFFF' },
+    'Olympic Month':               { bg: '#E63946', text: '#FFFFFF' },
+    'Gymnastics':                  { bg: '#1D3557', text: '#FFFFFF' },
+    'Climbing':                    { bg: '#F4A261', text: '#7C3A00' },
+    'Swimming':                    { bg: '#2A9D8F', text: '#FFFFFF' },
+};
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', loadAll);
+
+async function loadAll() {
+    try {
+        const res = await fetch(API + '?t=' + Date.now());
+        const json = await res.json();
+        if (json.success) {
+            allData = json.data;
+            renderTable();
+        }
+    } catch (e) {
+        showToast('❌ 无法连接后端服务，请先运行 npm start', 'error');
+    }
+}
+
+// ─── Tab Switch ─────────────────────────────────────────────────────────────
+function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tab);
+    });
+    document.getElementById('currentTabLabel').textContent =
+        { prek: 'PreK PE', k: 'K1–K2 PE', climbing: 'Climbing & Swimming', gallery: '奥林匹克相册' }[tab] || tab;
+
+    // Show/hide curriculum section
+    const tableWrap = document.querySelector('.table-wrap');
+    const toolbar = document.querySelector('.toolbar');
+    if (tableWrap) tableWrap.classList.toggle('hidden', tab === 'gallery');
+    if (toolbar) toolbar.classList.toggle('hidden', tab === 'gallery');
+
+    // Show/hide gallery section
+    const gallerySection = document.getElementById('gallerySection');
+    const uploadSection = document.getElementById('galleryUploadSection');
+    if (gallerySection) gallerySection.classList.toggle('hidden', tab !== 'gallery');
+    if (uploadSection) uploadSection.classList.toggle('hidden', tab !== 'gallery');
+
+    if (tab === 'gallery') {
+        renderGallery();
+    } else {
+        renderTable();
+    }
+}
+
+// ─── Render ─────────────────────────────────────────────────────────────────
+function renderTable() {
+    const rows = allData[currentTab] || [];
+    const dataRows = rows.filter(r => r.week);
+    document.getElementById('rowCount').textContent = dataRows.length;
+    const tbody = document.getElementById('tableBody');
+
+    if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:#94A3B8;">暂无数据</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = rows.map((row, i) => {
+        if (row.holiday) {
+            return `<tr class="row-holiday"><td colspan="5">🎉 ${escapeHtml(row.holiday)}</td></tr>`;
+        }
+        if (row.semester) {
+            return `<tr class="row-semester"><td colspan="5">${escapeHtml(row.semester)}</td></tr>`;
+        }
+        const bg = row.bgColor || '#1D3557';
+        const fg = row.textColor || '#FFFFFF';
+        const badgeStyle = `background:${bg};color:${fg};`;
+        const subunitHTML = formatSubunitDisplay(row.subunit || '');
+        return `<tr>
+            <td><span class="week-badge">W${escapeHtml(row.week || '')}</span></td>
+            <td style="color:#64748B;font-size:0.82rem;">${escapeHtml(row.month || '')}</td>
+            <td>
+                <span class="unit-badge" style="${badgeStyle}" onclick="editRow(${i})" title="点击编辑颜色">
+                    <span class="color-swatch" style="background:${bg};border-color:${fg};"></span>
+                    ${escapeHtml(row.unit || '')}
+                </span>
+            </td>
+            <td class="subunit-preview">${subunitHTML}</td>
+            <td style="text-align:center;">
+                <button class="btn btn-sm btn-slate" onclick="editRow(${i})">✏️</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteRow(${i})">🗑</button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+// ─── Sub-Unit Preview Formatter ─────────────────────────────────────────────
+function formatSubunitDisplay(text) {
+    if (!text || !text.trim()) return '<span style="color:#CBD5E1;">—</span>';
+    if (!text.includes('\n')) {
+        const m = text.match(/^(.+?)\s*\(([^)]+)\)$/);
+        if (m) return `<span class="line"><span class="title">${escapeHtml(m[1])}</span><span class="desc">(${escapeHtml(m[2])})</span></span>`;
+        return `<span class="line"><span class="title">${escapeHtml(text)}</span></span>`;
+    }
+    return text.split('\n').filter(l => l.trim()).map(line => {
+        const m = line.match(/^(.+?)\s*\(([^)]+)\)$/);
+        if (m) return `<span class="line"><span class="title">${escapeHtml(m[1])}</span><span class="desc">(${escapeHtml(m[2])})</span><span class="newline"></span></span>`;
+        return `<span class="line"><span class="title">${escapeHtml(line.trim())}</span><span class="newline"></span></span>`;
+    }).join('');
+}
+
+// ─── Row Type Toggle ─────────────────────────────────────────────────────────
+function toggleRowTypeFields() {
+    const type = document.querySelector('input[name="rowType"]:checked').value;
+    document.getElementById('weekRowFields').classList.toggle('hidden', type !== 'week');
+    document.getElementById('holidayRowFields').classList.toggle('hidden', type !== 'holiday');
+    document.getElementById('semesterRowFields').classList.toggle('hidden', type !== 'semester');
+    document.getElementById('modalHeader').className = `modal-header ${type === 'holiday' ? 'holiday' : type === 'semester' ? 'semester' : 'add'}`;
+    document.getElementById('modalTitle').textContent =
+        type === 'holiday' ? '🎉 添加假期行' :
+        type === 'semester' ? '📋 添加学期标题' : '➕ 添加数据行';
+}
+
+// ─── Color Sync ─────────────────────────────────────────────────────────────
+function syncColorText(type) {
+    if (type === 'bg') {
+        document.getElementById('f_bgColorText').value = document.getElementById('f_bgColor').value;
+    } else {
+        document.getElementById('f_textColorText').value = document.getElementById('f_textColor').value;
+    }
+    updateColorPreview();
+}
+
+function syncColorPicker(type) {
+    const textVal = type === 'bg' ? document.getElementById('f_bgColorText').value : document.getElementById('f_textColorText').value;
+    const picker = type === 'bg' ? document.getElementById('f_bgColor') : document.getElementById('f_textColor');
+    if (/^#[0-9A-Fa-f]{6}$/.test(textVal)) {
+        picker.value = textVal;
+        updateColorPreview();
+    }
+}
+
+function resetColors() {
+    const unit = document.getElementById('f_unit').value;
+    const defaults = COLOR_DEFAULTS[unit] || { bg: '#1D3557', text: '#FFFFFF' };
+    document.getElementById('f_bgColor').value = defaults.bg;
+    document.getElementById('f_bgColorText').value = defaults.bg;
+    document.getElementById('f_textColor').value = defaults.text;
+    document.getElementById('f_textColorText').value = defaults.text;
+    updateColorPreview();
+}
+
+function updateColorPreview() {
+    const unit = document.getElementById('f_unit').value || 'Unit Name';
+    const bg = document.getElementById('f_bgColor').value;
+    const fg = document.getElementById('f_textColor').value;
+    const preview = document.getElementById('colorPreview');
+    preview.style.background = bg;
+    preview.style.color = fg;
+    preview.textContent = unit;
+}
+
+// ─── Unit Change Handler ─────────────────────────────────────────────────────
+function onUnitChange() {
+    const unit = document.getElementById('f_unit').value;
+    const defaults = COLOR_DEFAULTS[unit] || { bg: '#1D3557', text: '#FFFFFF' };
+    document.getElementById('f_bgColor').value = defaults.bg;
+    document.getElementById('f_bgColorText').value = defaults.bg;
+    document.getElementById('f_textColor').value = defaults.text;
+    document.getElementById('f_textColorText').value = defaults.text;
+    updateColorPreview();
+}
+
+// ─── Show Add Modal ──────────────────────────────────────────────────────────
+function showAddModal(type) {
+    editTarget = null;
+    document.getElementById('modalForm').reset();
+    document.getElementById('rowTypeSection').classList.remove('hidden');
+    document.querySelector('input[name="rowType"][value="week"]').checked = true;
+    toggleRowTypeFields();
+
+    // Default colors
+    document.getElementById('f_bgColor').value = '#1D3557';
+    document.getElementById('f_bgColorText').value = '#1D3557';
+    document.getElementById('f_textColor').value = '#FFFFFF';
+    document.getElementById('f_textColorText').value = '#FFFFFF';
+    updateColorPreview();
+
+    if (type === 'holiday') {
+        document.querySelector('input[name="rowType"][value="holiday"]').checked = true;
+        toggleRowTypeFields();
+    } else if (type === 'semester') {
+        document.querySelector('input[name="rowType"][value="semester"]').checked = true;
+        toggleRowTypeFields();
+    }
+
+    document.getElementById('modal').classList.remove('hidden');
+}
+
+// ─── Edit Row ───────────────────────────────────────────────────────────────
+function editRow(index) {
+    const row = allData[currentTab][index];
+    editTarget = { tab: currentTab, index };
+
+    document.getElementById('rowTypeSection').classList.add('hidden');
+    document.getElementById('modalHeader').className = 'modal-header edit';
+    document.getElementById('modalTitle').textContent = '✏️ 编辑数据行';
+
+    if (row.holiday) {
+        document.querySelector('input[name="rowType"][value="holiday"]').checked = true;
+        toggleRowTypeFields();
+        document.getElementById('f_holiday').value = row.holiday;
+    } else if (row.semester) {
+        document.querySelector('input[name="rowType"][value="semester"]').checked = true;
+        toggleRowTypeFields();
+        document.getElementById('f_semester').value = row.semester;
+    } else {
+        document.querySelector('input[name="rowType"][value="week"]').checked = true;
+        toggleRowTypeFields();
+        document.getElementById('f_week').value = row.week || '';
+        document.getElementById('f_month').value = row.month || '';
+        document.getElementById('f_unit').value = row.unit || '';
+        document.getElementById('f_subunit').value = row.subunit || '';
+        document.getElementById('f_events').value = row.events || '';
+        document.getElementById('f_wd').value = row.wd || '';
+        const bg = row.bgColor || (COLOR_DEFAULTS[row.unit] || {}).bg || '#1D3557';
+        const fg = row.textColor || (COLOR_DEFAULTS[row.unit] || {}).text || '#FFFFFF';
+        document.getElementById('f_bgColor').value = bg;
+        document.getElementById('f_bgColorText').value = bg;
+        document.getElementById('f_textColor').value = fg;
+        document.getElementById('f_textColorText').value = fg;
+        updateColorPreview();
+    }
+
+    document.getElementById('modal').classList.remove('hidden');
+}
+
+// ─── Close Modal ─────────────────────────────────────────────────────────────
+function closeModal() {
+    document.getElementById('modal').classList.add('hidden');
+}
+
+// ─── Form Submit ─────────────────────────────────────────────────────────────
+async function handleFormSubmit(e) {
+    e.preventDefault();
+    const type = document.querySelector('input[name="rowType"]:checked').value;
+    const tab = editTarget ? editTarget.tab : currentTab;
+    const idx = editTarget ? editTarget.index : -1;
+
+    let newRow;
+    if (type === 'holiday') {
+        newRow = { holiday: document.getElementById('f_holiday').value.trim() };
+    } else if (type === 'semester') {
+        newRow = { semester: document.getElementById('f_semester').value.trim() };
+    } else {
+        const week = document.getElementById('f_week').value.trim();
+        const month = document.getElementById('f_month').value.trim();
+        const unit = document.getElementById('f_unit').value.trim();
+        const subunit = document.getElementById('f_subunit').value.trim();
+        if (!week || !month || !unit || !subunit) {
+            showToast('⚠️ Week、Month、Unit、Sub-Unit 为必填项', 'error');
+            return;
+        }
+        newRow = {
+            week, month, unit, subunit,
+            events: document.getElementById('f_events').value.trim(),
+            wd: document.getElementById('f_wd').value.trim(),
+            bgColor: document.getElementById('f_bgColor').value,
+            textColor: document.getElementById('f_textColor').value,
+        };
+    }
+
+    try {
+        if (idx >= 0) {
+            allData[tab][idx] = newRow;
+        } else {
+            allData[tab].push(newRow);
+        }
+
+        const res = await fetch(`${API}/${tab}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(allData[tab]),
+        });
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error);
+
+        closeModal();
+        renderTable();
+        showToast(idx >= 0 ? '✅ 已更新' : '✅ 已添加', 'success');
+    } catch (err) {
+        showToast('❌ 保存失败: ' + err.message, 'error');
+    }
+}
+
+// ─── Delete ─────────────────────────────────────────────────────────────────
+function deleteRow(index) {
+    const row = allData[currentTab][index];
+    deleteTarget = { tab: currentTab, index };
+    const label = row.holiday || row.semester || (`W${row.week} — ${(row.subunit || '').substring(0, 40)}`);
+    document.getElementById('deleteModalMsg').textContent = `确定要删除「${label}」吗？此操作不可撤销。`;
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+async function confirmDelete() {
+    // Gallery context
+    if (currentTab === 'gallery' && deleteGalleryTarget) {
+        await confirmGalleryDelete();
+        return;
+    }
+    // Curriculum delete
+    if (!deleteTarget) return;
+    const { tab, index } = deleteTarget;
+
+    try {
+        allData[tab].splice(index, 1);
+        const res = await fetch(`${API}/${tab}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(allData[tab]),
+        });
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error);
+
+        closeDeleteModal();
+        renderTable();
+        showToast('✅ 已删除', 'success');
+    } catch (err) {
+        showToast('❌ 删除失败: ' + err.message, 'error');
+    }
+}
+
+async function confirmGalleryDelete() {
+    if (!deleteGalleryTarget) return;
+    const item = galleryItems[deleteGalleryTarget.index];
+    if (!item) return;
+    try {
+        const res = await fetch(`${GALLERY_API}/gallery/${item.id}`, { method: 'DELETE' });
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error);
+        closeDeleteModal();
+        renderGallery();
+        showToast('✅ 已删除', 'success');
+    } catch (err) {
+        showToast('❌ 删除失败: ' + err.message, 'error');
+    }
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+    deleteTarget = null;
+    deleteGalleryTarget = null;
+}
+
+// ─── Toast ───────────────────────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `${type} show`;
+    setTimeout(() => { t.classList.remove('show'); }, 3000);
+}
+
+// ─── Escape ──────────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+// ─── Gallery Tab Logic ──────────────────────────────────────────────────────────
+const GALLERY_API = 'http://localhost:3000/api';
+let galleryItems = [];
+
+// (switchTab is already defined above — shared between curriculum and gallery tabs)
+
+// File preview before upload
+function previewGalleryFile(input) {
+    const preview = document.getElementById('galleryFilePreview');
+    const videoPreview = document.getElementById('galleryVideoPreview');
+    const imgPreview = document.getElementById('galleryImgPreview');
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const isVideo = file.type.startsWith('video/');
+    preview.style.display = 'block';
+    if (isVideo) {
+        videoPreview.style.display = 'block';
+        imgPreview.style.display = 'none';
+        videoPreview.src = URL.createObjectURL(file);
+    } else {
+        videoPreview.style.display = 'none';
+        imgPreview.style.display = 'block';
+        imgPreview.src = URL.createObjectURL(file);
+    }
+}
+
+// Handle gallery upload
+async function handleGalleryUpload(e) {
+    e.preventDefault();
+    const fileInput = document.getElementById('galleryFileInput');
+    const captionInput = document.getElementById('galleryCaption');
+    const dateInput = document.getElementById('galleryDate');
+    const btn = document.getElementById('galleryUploadBtn');
+
+    if (!fileInput.files[0]) {
+        showToast('⚠️ 请先选择文件', 'error');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    formData.append('caption', captionInput.value.trim());
+    formData.append('date', dateInput.value.trim());
+
+    btn.disabled = true;
+    btn.textContent = '⬆️ 上传中...';
+    try {
+        const res = await fetch(`${GALLERY_API}/upload`, { method: 'POST', body: formData });
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error);
+        showToast('✅ 上传成功', 'success');
+        // Reset form
+        document.getElementById('galleryUploadForm').reset();
+        document.getElementById('galleryFilePreview').style.display = 'none';
+        renderGallery();
+    } catch (err) {
+        showToast('❌ 上传失败: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '⬆️ 上传';
+    }
+}
+
+// Load gallery items
+async function renderGallery() {
+    const tbody = document.getElementById('galleryBody');
+    if (!tbody) return;
+    try {
+        const res = await fetch(`${GALLERY_API}/gallery?t=` + Date.now());
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error);
+        galleryItems = json.data || [];
+        renderGalleryTable();
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:#DC2626;">加载失败：${err.message}</td></tr>`;
+    }
+}
+
+function renderGalleryTable() {
+    const tbody = document.getElementById('galleryBody');
+    if (!tbody) return;
+    if (galleryItems.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:#94A3B8;">暂无照片或视频</td></tr>';
+        return;
+    }
+    tbody.innerHTML = galleryItems.map((item, i) => {
+        const src = `assets/olympic/${item.filename}`;
+        const thumbStyle = 'width:120px;height:80px;object-fit:cover;border-radius:8px;display:block;';
+        const preview = item.type === 'video'
+            ? `<video src="${src}" style="${thumbStyle}" muted preload="none"></video>`
+            : `<img src="${src}" alt="${escapeHtml(item.caption || '')}" style="${thumbStyle}">`;
+        return `<tr>
+            <td><span style="font-size:1.2rem;">${item.type === 'video' ? '🎬' : '📷'}</span></td>
+            <td><a href="${src}" target="_blank">${preview}</a></td>
+            <td>
+                <div style="font-weight:600;color:#1D3557;font-size:0.85rem;">${escapeHtml(item.caption || '—')}</div>
+                <div style="color:#94A3B8;font-size:0.75rem;margin-top:2px;">${escapeHtml(item.originalName || item.filename)}</div>
+            </td>
+            <td style="color:#64748B;font-size:0.82rem;">${escapeHtml(item.date || '—')}</td>
+            <td style="text-align:center;">
+                <button class="btn btn-sm btn-slate" onclick="editGalleryItem(${i})">✏️</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteGalleryItem(${i})">🗑</button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+// Edit gallery item (caption + date)
+let editGalleryTarget = null;
+
+function editGalleryItem(index) {
+    const item = galleryItems[index];
+    if (!item) return;
+    editGalleryTarget = { index };
+
+    const newCaption = prompt('修改说明文字:', item.caption || '');
+    if (newCaption === null) return;
+    const newDate = prompt('修改日期:', item.date || '');
+    if (newDate === null) return;
+
+    updateGalleryItem(item.id, { caption: newCaption.trim(), date: newDate.trim() });
+}
+
+async function updateGalleryItem(id, updates) {
+    try {
+        const res = await fetch(`${GALLERY_API}/gallery/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updates),
+        });
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error);
+        showToast('✅ 已更新', 'success');
+        renderGallery();
+    } catch (err) {
+        showToast('❌ 更新失败: ' + err.message, 'error');
+    }
+}
+
+let deleteGalleryTarget = null;
+
+function deleteGalleryItem(index) {
+    const item = galleryItems[index];
+    if (!item) return;
+    deleteGalleryTarget = { index };
+    document.getElementById('deleteModalMsg').textContent = `确定要删除「${item.caption || item.filename}」吗？文件将同时从磁盘删除。`;
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
