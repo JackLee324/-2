@@ -1,0 +1,339 @@
+{
+  "monthlyThemes": [
+    {
+      "month": 3,
+      "monthName": "三月 March",
+      "theme": "奥林匹克月 Olympic Month",
+      "themeEn": "Olympic Month"
+    },
+    {
+      "month": 4,
+      "monthName": "四月 April",
+      "theme": "春季运动月 Spring Sports Month",
+      "themeEn": "Spring Sports Month"
+    },
+    {
+      "month": 5,
+      "monthName": "五月 May",
+      "theme": "体能挑战月 Fitness Challenge",
+      "themeEn": "Fitness Challenge Month"
+    },
+    {
+      "month": 6,
+      "monthName": "六月 June",
+      "theme": "夏季运动月 Summer Sports",
+      "themeEn": "Summer Sports Month"
+    },
+    {
+      "month": 8,
+      "monthName": "八月 August",
+      "theme": "返校季 Back to School",
+      "themeEn": "Back to School Season"
+    },
+    {
+      "month": 9,
+      "monthName": "九月 September",
+      "theme": "秋季运动月 Autumn Sports",
+      "themeEn": "Autumn Sports Month"
+    },
+    {
+      "month": 10,
+      "monthName": "十月 October",
+      "theme": "国庆与秋季月 National Day & Autumn",
+      "themeEn": "National Day & Autumn"
+    },
+    {
+      "month": 11,
+      "monthName": "十一月 November",
+      "theme": "家庭运动月 Family Sports Month",
+      "themeEn": "Family Sports Month"
+    },
+    {
+      "month": 12,
+      "monthName": "十二月 December",
+      "theme": "冬季运动月 Winter Sports Month",
+      "themeEn": "Winter Sports Month"
+    },
+    {
+      "month": 1,
+      "monthName": "一月 January",
+      "theme": "新年运动月 New Year Sports",
+      "themeEn": "New Year Sports Month"
+    },
+    {
+      "month": 2,
+      "monthName": "二月 February",
+      "theme": "春节运动月 Spring Festival Sports",
+      "themeEn": "Spring Festival Sports"
+    }
+  ],
+  "events": [
+    {
+      "id": "evt001",
+      "date": "2026-03-15",
+      "endDate": "2026-03-15",
+      "title": "幼儿园奥林匹克日 Kindergarten Olympic Day",
+      "titleEn": "Kindergarten Olympic Day",
+      "type": "OnCampusEvent",
+      "description": "全园小朋友参与模拟奥林匹克运动会，体验各项田径项目，培养运动家精神。",
+      "backgroundColor": "#E91E8C",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt002",
+      "date": "2026-03-20",
+      "endDate": "2026-03-22",
+      "title": "周末亲子运动会 Weekend Family Sports Day",
+      "titleEn": "Weekend Family Sports Day",
+      "type": "ParentEvent",
+      "description": "邀请家长来园与孩子共同参与亲子运动会，增进亲子关系，体验运动乐趣。",
+      "backgroundColor": "#9B59B6",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt003",
+      "date": "2026-04-06",
+      "endDate": "2026-04-06",
+      "title": "清明节假期 Tomb-Sweeping Day Holiday",
+      "titleEn": "Tomb-Sweeping Day Holiday",
+      "type": "Holiday",
+      "description": "清明节放假一天，请家长安排好孩子的假期活动。",
+      "backgroundColor": "#27AE60",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt004",
+      "date": "2026-04-10",
+      "endDate": "2026-04-10",
+      "title": "PE教师专业培训 PE Teacher Professional Development",
+      "titleEn": "PE Teacher PD Day",
+      "type": "PDDay",
+      "description": "全体体育教师参加专业培训研讨会，提升教学技能。",
+      "backgroundColor": "#95A5A6",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt005",
+      "date": "2026-05-01",
+      "endDate": "2026-05-03",
+      "title": "劳动节假期 Labor Day Holiday",
+      "titleEn": "Labor Day Holiday",
+      "type": "Holiday",
+      "description": "劳动节放假三天（5月1日-3日），5月4日（周一）正常上学。",
+      "backgroundColor": "#27AE60",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt006",
+      "date": "2026-05-15",
+      "endDate": "2026-05-15",
+      "title": "家长在园日 Parent on Campus Day",
+      "titleEn": "Parent on Campus Day",
+      "type": "ParentEvent",
+      "description": "欢迎家长来园观摩体育课，参与孩子们的运动时光。",
+      "backgroundColor": "#9B59B6",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt007",
+      "date": "2026-06-01",
+      "endDate": "2026-06-01",
+      "title": "儿童节庆祝活动 Children's Day Celebration",
+      "titleEn": "Children's Day Celebration",
+      "type": "OnCampusEvent",
+      "description": "庆祝六一儿童节，举办趣味运动会和才艺展示活动。",
+      "backgroundColor": "#E91E8C",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt008",
+      "date": "2026-06-15",
+      "endDate": "2026-06-15",
+      "title": "夏季运动会（报名截止） Summer Sports Day Registration Deadline",
+      "titleEn": "Summer Sports Day Registration Deadline",
+      "type": "OnCampusEvent",
+      "description": "夏季运动会报名截止，请还未报名的家庭尽快完成报名。",
+      "backgroundColor": "#E91E8C",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt1779148713366",
+      "date": "2026-06-19",
+      "endDate": "2026-08-03",
+      "title": "暑假",
+      "titleEn": "",
+      "type": "Holiday",
+      "description": ""
+    },
+    {
+      "id": "evt009",
+      "date": "2026-08-28",
+      "endDate": "2026-08-28",
+      "title": "秋季学期家长会 Autumn Semester Parent Meeting",
+      "titleEn": "Autumn Semester Parent Meeting",
+      "type": "ParentEvent",
+      "description": "新学期家长会，介绍本学期体育课程安排和教学目标。",
+      "backgroundColor": "#9B59B6",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt010",
+      "date": "2026-09-01",
+      "endDate": "2026-09-01",
+      "title": "秋季学期开学 First Day of Autumn Semester",
+      "titleEn": "First Day of Autumn Semester",
+      "type": "SchoolDay",
+      "description": "2026-2027学年秋季学期正式开学，孩子们返回校园开始新学期的体育课程。",
+      "backgroundColor": "#F1C40F",
+      "textColor": "#333333"
+    },
+    {
+      "id": "evt011",
+      "date": "2026-10-01",
+      "endDate": "2026-10-07",
+      "title": "国庆假期 National Day Holiday",
+      "titleEn": "National Day Holiday",
+      "type": "Holiday",
+      "description": "国庆节放假七天（10月1日-7日），10月8日（周三）正常上学。",
+      "backgroundColor": "#27AE60",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt012",
+      "date": "2026-10-20",
+      "endDate": "2026-10-20",
+      "title": "PE教师专业培训日 PE Teacher PD Day",
+      "titleEn": "PE Teacher PD Day",
+      "type": "PDDay",
+      "description": "体育教师团队参加校外专业培训，校园体育课暂停一天。",
+      "backgroundColor": "#95A5A6",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt013",
+      "date": "2026-11-15",
+      "endDate": "2026-11-15",
+      "title": "秋季趣味运动会 Autumn Fun Sports Day",
+      "titleEn": "Autumn Fun Sports Day",
+      "type": "OnCampusEvent",
+      "description": "秋季趣味运动会，结合家庭运动月主题，邀请家长共同参与。",
+      "backgroundColor": "#E91E8C",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt014",
+      "date": "2026-11-20",
+      "endDate": "2026-11-20",
+      "title": "家长在园日 Parent on Campus Day",
+      "titleEn": "Parent on Campus Day",
+      "type": "ParentEvent",
+      "description": "家长在园日，欢迎家长来园观摩体育课堂，参与互动。",
+      "backgroundColor": "#9B59B6",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt015",
+      "date": "2026-12-20",
+      "endDate": "2026-12-20",
+      "title": "冬季体能测试 Winter Fitness Assessment",
+      "titleEn": "Winter Fitness Assessment",
+      "type": "SchoolDay",
+      "description": "进行冬季体能测试，评估孩子们一学期的运动发展情况。",
+      "backgroundColor": "#F1C40F",
+      "textColor": "#333333"
+    },
+    {
+      "id": "evt016",
+      "date": "2026-12-25",
+      "endDate": "2026-12-25",
+      "title": "圣诞节庆祝活动 Christmas Celebration",
+      "titleEn": "Christmas Celebration",
+      "type": "OnCampusEvent",
+      "description": "圣诞节庆祝活动，开展圣诞主题运动游戏，如圣诞老人障碍跑。",
+      "backgroundColor": "#E91E8C",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt017",
+      "date": "2026-12-31",
+      "endDate": "2027-01-02",
+      "title": "元旦假期 New Year Holiday",
+      "titleEn": "New Year Holiday",
+      "type": "Holiday",
+      "description": "元旦假期放假三天（12月31日-1月2日），1月3日（周六）正常上学。",
+      "backgroundColor": "#27AE60",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt018",
+      "date": "2027-01-28",
+      "endDate": "2027-02-05",
+      "title": "春节假期 Spring Festival Holiday",
+      "titleEn": "Spring Festival Holiday",
+      "type": "Holiday",
+      "description": "春节假期（具体安排以上级通知为准），祝大家新春快乐！",
+      "backgroundColor": "#27AE60",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt019",
+      "date": "2027-02-10",
+      "endDate": "2027-02-10",
+      "title": "春季学期家长会 Spring Semester Parent Meeting",
+      "titleEn": "Spring Semester Parent Meeting",
+      "type": "ParentEvent",
+      "description": "春季学期家长会，介绍新学期体育课程计划和运动目标。",
+      "backgroundColor": "#9B59B6",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt020",
+      "date": "2027-02-16",
+      "endDate": "2027-02-16",
+      "title": "春季学期开学 First Day of Spring Semester",
+      "titleEn": "First Day of Spring Semester",
+      "type": "SchoolDay",
+      "description": "2026-2027学年春季学期正式开学。",
+      "backgroundColor": "#F1C40F",
+      "textColor": "#333333"
+    },
+    {
+      "id": "evt021",
+      "date": "2027-02-26",
+      "endDate": "2027-02-26",
+      "title": "PE教师专业培训日 PE Teacher PD Day",
+      "titleEn": "PE Teacher PD Day",
+      "type": "PDDay",
+      "description": "体育教师参加新学期专业培训，校园体育课暂停一天。",
+      "backgroundColor": "#95A5A6",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt022",
+      "date": "2027-03-15",
+      "endDate": "2027-03-15",
+      "title": "春季奥林匹克日 Spring Olympic Day",
+      "titleEn": "Spring Olympic Day",
+      "type": "OnCampusEvent",
+      "description": "春季奥林匹克日，延续奥运精神，开展各项竞技体育活动。",
+      "backgroundColor": "#E91E8C",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "evt023",
+      "date": "2027-04-05",
+      "endDate": "2027-04-05",
+      "title": "清明节假期 Tomb-Sweeping Day Holiday",
+      "titleEn": "Tomb-Sweeping Day Holiday",
+      "type": "Holiday",
+      "description": "清明节放假一天。",
+      "backgroundColor": "#27AE60",
+      "textColor": "#ffffff"
+    }
+  ],
+  "globalNotice": {
+    "isActive": true,
+    "type": "danger",
+    "content": "111123"
+  }
+}

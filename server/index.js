@@ -9,8 +9,13 @@ const PORT = 3000;
 
 // ─── Data Paths ───────────────────────────────────────────────────────────────
 const DATA_FILE     = path.join(__dirname, 'data', 'curriculum.json');
-const GALLERY_FILE  = path.join(__dirname, 'data', 'olympic_gallery.json');
-const UPLOAD_DIR    = path.join(__dirname, '..', 'public', 'assets', 'olympic');
+const GALLERY_FILE   = path.join(__dirname, 'data', 'olympic_gallery.json');
+const PARKOUR_DATA_FILE = path.join(__dirname, 'data', 'morning_parkour.json');
+const PARKOUR_VIDEOS_FILE = path.join(__dirname, 'data', 'parkour_videos.json');
+const CALENDAR_FILE = path.join(__dirname, 'data', 'academic_calendar.json');
+const UPLOAD_DIR     = path.join(__dirname, '..', 'public', 'assets', 'olympic');
+const PARKOUR_UPLOAD_DIR = path.join(__dirname, '..', 'public', 'assets', 'parkour');
+const PARKOUR_VIDEO_DIR = path.join(__dirname, '..', 'public', 'assets', 'parkour-videos');
 
 // ─── Multer Config ────────────────────────────────────────────────────────────
 const storage = multer.diskStorage({
@@ -70,6 +75,82 @@ function readGallery() {
 function writeGallery(data) {
     fs.writeFileSync(GALLERY_FILE, JSON.stringify(data, null, 2), 'utf8');
 }
+
+// ─── Parkour Helpers ───────────────────────────────────────────────────────────
+function readParkour() {
+    if (!fs.existsSync(PARKOUR_DATA_FILE)) {
+        fs.mkdirSync(path.dirname(PARKOUR_DATA_FILE), { recursive: true });
+        fs.writeFileSync(PARKOUR_DATA_FILE, JSON.stringify([], null, 2));
+    }
+    return JSON.parse(fs.readFileSync(PARKOUR_DATA_FILE, 'utf8'));
+}
+
+function writeParkour(data) {
+    fs.writeFileSync(PARKOUR_DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// ─── Parkour Video Helpers ─────────────────────────────────────────────────────
+function readParkourVideos() {
+    if (!fs.existsSync(PARKOUR_VIDEOS_FILE)) {
+        fs.mkdirSync(path.dirname(PARKOUR_VIDEOS_FILE), { recursive: true });
+        fs.writeFileSync(PARKOUR_VIDEOS_FILE, JSON.stringify([], null, 2));
+    }
+    return JSON.parse(fs.readFileSync(PARKOUR_VIDEOS_FILE, 'utf8'));
+}
+
+function writeParkourVideos(data) {
+    fs.writeFileSync(PARKOUR_VIDEOS_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// ─── Parkour Multer Storage ────────────────────────────────────────────────────
+const parkourStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        if (!fs.existsSync(PARKOUR_UPLOAD_DIR)) {
+            fs.mkdirSync(PARKOUR_UPLOAD_DIR, { recursive: true });
+        }
+        cb(null, PARKOUR_UPLOAD_DIR);
+    },
+    filename: (req, file, cb) => {
+        const ts = Date.now();
+        const ext = path.extname(file.originalname).toLowerCase();
+        cb(null, `${ts}${ext}`);
+    }
+});
+const uploadParkour = multer({
+    storage: parkourStorage,
+    limits: { fileSize: 200 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowedExts = /\.(jpeg|jpg|png|webp|gif|heic|heif)$/i;
+        const allowedMimes = /^image\/(jpeg|png|webp|gif|heic|heif)$/i;
+        if (allowedExts.test(file.originalname) || allowedMimes.test(file.mimetype)) return cb(null, true);
+        cb(new Error('Only image files are allowed for parkour tracks'), false);
+    }
+});
+
+// ─── Parkour Video Multer Storage ────────────────────────────────────────────────
+const parkourVideoStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        if (!fs.existsSync(PARKOUR_VIDEO_DIR)) {
+            fs.mkdirSync(PARKOUR_VIDEO_DIR, { recursive: true });
+        }
+        cb(null, PARKOUR_VIDEO_DIR);
+    },
+    filename: (req, file, cb) => {
+        const ts = Date.now();
+        const ext = path.extname(file.originalname).toLowerCase();
+        cb(null, `${ts}${ext}`);
+    }
+});
+const uploadParkourVideo = multer({
+    storage: parkourVideoStorage,
+    limits: { fileSize: 500 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowedExts = /\.(mp4|webm|mov|avi|mkv)$/i;
+        const allowedMimes = /^video\/(mp4|webm|quicktime|x-msvideo)$/i;
+        if (allowedExts.test(file.originalname) || allowedMimes.test(file.mimetype)) return cb(null, true);
+        cb(new Error('Only video files (mp4, webm, mov) are allowed'), false);
+    }
+});
 
 // ─── GET /api/curriculum ─────────────────────────────────────────────────────
 app.get('/api/curriculum', (req, res) => {
@@ -268,6 +349,269 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
+// ─── GET /api/parkour ─────────────────────────────────────────────────────────
+app.get('/api/parkour', (req, res) => {
+    try {
+        const data = readParkour();
+        res.json({ success: true, data });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ─── PUT /api/parkour ─────────────────────────────────────────────────────────
+app.put('/api/parkour', (req, res) => {
+    try {
+        const rows = req.body;
+        if (!Array.isArray(rows)) {
+            return res.status(400).json({ success: false, error: 'Body must be an array of parkour rows' });
+        }
+        writeParkour(rows);
+        res.json({ success: true, message: `Parkour updated with ${rows.length} rows` });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ─── POST /api/upload-parkour ─────────────────────────────────────────────────
+app.post('/api/upload-parkour', uploadParkour.single('trackImage'), handleMulterError, (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ success: false, error: 'No file uploaded' });
+    }
+    const imagePath = `/assets/parkour/${req.file.filename}`;
+    res.json({
+        success: true,
+        imagePath,
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size
+    });
+});
+
+// ─── DELETE /api/parkour-image ────────────────────────────────────────────────
+app.delete('/api/parkour-image', (req, res) => {
+    try {
+        const { imagePath } = req.body;
+        if (!imagePath) return res.status(400).json({ success: false, error: 'imagePath required' });
+        const fullPath = path.join(__dirname, '..', 'public', imagePath);
+        if (fs.existsSync(fullPath)) {
+            fs.unlinkSync(fullPath);
+        }
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ─── GET /api/parkour-videos ─────────────────────────────────────────────────
+app.get('/api/parkour-videos', (req, res) => {
+    try {
+        const data = readParkourVideos();
+        res.json({ success: true, data });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ─── POST /api/upload-parkour-video ──────────────────────────────────────────
+app.post('/api/upload-parkour-video', uploadParkourVideo.single('videoFile'), handleMulterError, (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ success: false, error: 'No file received' });
+    }
+    const { title, description } = req.body;
+    const videoItem = {
+        id: 'pvid' + Date.now(),
+        title: title || '未命名视频',
+        description: description || '',
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        uploadTime: new Date().toISOString()
+    };
+    const videos = readParkourVideos();
+    videos.unshift(videoItem); // newest first
+    writeParkourVideos(videos);
+    res.json({ success: true, item: videoItem });
+});
+
+// ─── DELETE /api/parkour-video/:id ───────────────────────────────────────────
+app.delete('/api/parkour-video/:id', (req, res) => {
+    try {
+        const { id } = req.params;
+        const videos = readParkourVideos();
+        const idx = videos.findIndex(v => v.id === id);
+        if (idx === -1) {
+            return res.status(404).json({ success: false, error: 'Video not found' });
+        }
+        const deleted = videos.splice(idx, 1)[0];
+        writeParkourVideos(videos);
+        // Remove physical file
+        const fullPath = path.join(PARKOUR_VIDEO_DIR, deleted.filename);
+        if (fs.existsSync(fullPath)) {
+            fs.unlinkSync(fullPath);
+        }
+        res.json({ success: true, deleted });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ─── Calendar Helpers ─────────────────────────────────────────────────────────
+function readCalendar() {
+    if (!fs.existsSync(CALENDAR_FILE)) {
+        fs.mkdirSync(path.dirname(CALENDAR_FILE), { recursive: true });
+        fs.writeFileSync(CALENDAR_FILE, JSON.stringify({ monthlyThemes: [], events: [], globalNotice: { isActive: false, type: 'info', content: '' } }, null, 2));
+    }
+    const data = JSON.parse(fs.readFileSync(CALENDAR_FILE, 'utf8'));
+    // Ensure globalNotice always exists (backward compat for old JSON)
+    if (!data.globalNotice) data.globalNotice = { isActive: false, type: 'info', content: '' };
+    if (!data.monthlyThemes) data.monthlyThemes = [];
+    if (!data.events) data.events = [];
+    return data;
+}
+
+function writeCalendar(data) {
+    fs.writeFileSync(CALENDAR_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// ─── Calendar Event Type Colors ────────────────────────────────────────────────
+const EVENT_TYPE_COLORS = {
+    ParentEvent:   { bg: '#9B59B6', text: '#ffffff' },
+    SchoolDay:     { bg: '#F1C40F', text: '#333333' },
+    OnCampusEvent: { bg: '#E91E8C', text: '#ffffff' },
+    PDDay:         { bg: '#95A5A6', text: '#ffffff' },
+    Holiday:       { bg: '#27AE60', text: '#ffffff' }
+};
+
+// ─── Calendar API ─────────────────────────────────────────────────────────────
+// GET /api/calendar — return all calendar data (themes + events)
+app.get('/api/calendar', (req, res) => {
+    try {
+        const data = readCalendar();
+        res.json({ success: true, data });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// GET /api/time — return Beijing time (for client sync)
+app.get('/api/time', (req, res) => {
+    const now = new Date();
+    const beijing = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
+    res.json({
+        success: true,
+        time: now.toISOString(),
+        beijing: beijing.toISOString(),
+        timestamp: now.getTime()
+    });
+});
+
+// POST /api/calendar/event — add a new event
+app.post('/api/calendar/event', (req, res) => {
+    try {
+        const { date, endDate, title, titleEn, type, description, backgroundColor, textColor } = req.body;
+        if (!date || !title || !type) {
+            return res.status(400).json({ success: false, error: 'date, title, and type are required' });
+        }
+        const validTypes = ['ParentEvent', 'SchoolDay', 'OnCampusEvent', 'PDDay', 'Holiday'];
+        if (!validTypes.includes(type)) {
+            return res.status(400).json({ success: false, error: 'Invalid type. Use: ' + validTypes.join(', ') });
+        }
+        const cal = readCalendar();
+        const newEvent = {
+            id: 'evt' + Date.now(),
+            date,
+            endDate: endDate || date,
+            title: title || '',
+            titleEn: titleEn || '',
+            type,
+            description: description || '',
+            backgroundColor: backgroundColor || EVENT_TYPE_COLORS[type]?.bg || '#999999',
+            textColor: textColor || EVENT_TYPE_COLORS[type]?.text || '#ffffff'
+        };
+        cal.events.push(newEvent);
+        cal.events.sort((a, b) => a.date.localeCompare(b.date));
+        writeCalendar(cal);
+        res.json({ success: true, event: newEvent });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// PUT /api/calendar/event/:id — update an event
+app.put('/api/calendar/event/:id', (req, res) => {
+    try {
+        const { id } = req.params;
+        const cal = readCalendar();
+        const idx = cal.events.findIndex(e => e.id === id);
+        if (idx === -1) {
+            return res.status(404).json({ success: false, error: 'Event not found' });
+        }
+        const validTypes = ['ParentEvent', 'SchoolDay', 'OnCampusEvent', 'PDDay', 'Holiday'];
+        if (req.body.type && !validTypes.includes(req.body.type)) {
+            return res.status(400).json({ success: false, error: 'Invalid type' });
+        }
+        cal.events[idx] = { ...cal.events[idx], ...req.body, id };
+        writeCalendar(cal);
+        res.json({ success: true, event: cal.events[idx] });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// DELETE /api/calendar/event/:id — delete an event
+app.delete('/api/calendar/event/:id', (req, res) => {
+    try {
+        const { id } = req.params;
+        const cal = readCalendar();
+        const idx = cal.events.findIndex(e => e.id === id);
+        if (idx === -1) {
+            return res.status(404).json({ success: false, error: 'Event not found' });
+        }
+        const deleted = cal.events.splice(idx, 1)[0];
+        writeCalendar(cal);
+        res.json({ success: true, deleted });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// PUT /api/calendar/themes — update monthly themes
+app.put('/api/calendar/themes', (req, res) => {
+    try {
+        const themes = req.body;
+        if (!Array.isArray(themes)) {
+            return res.status(400).json({ success: false, error: 'Themes must be an array' });
+        }
+        const cal = readCalendar();
+        cal.monthlyThemes = themes;
+        writeCalendar(cal);
+        res.json({ success: true, themes: cal.monthlyThemes });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// PUT /api/calendar/notice — update global notice
+app.put('/api/calendar/notice', (req, res) => {
+    try {
+        const { isActive, type, content } = req.body;
+        const validTypes = ['danger', 'info', 'success'];
+        if (type && !validTypes.includes(type)) {
+            return res.status(400).json({ success: false, error: 'Invalid type. Use: ' + validTypes.join(', ') });
+        }
+        const cal = readCalendar();
+        cal.globalNotice = {
+            isActive: Boolean(isActive),
+            type: validTypes.includes(type) ? type : 'info',
+            content: String(content || '')
+        };
+        writeCalendar(cal);
+        res.json({ success: true, globalNotice: cal.globalNotice });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'admin.html'));
 });
@@ -278,6 +622,11 @@ app.listen(PORT, () => {
     console.log(`📋 Public page:  http://localhost:${PORT}/`);
     console.log(`⚙️  Admin panel: http://localhost:${PORT}/admin`);
     console.log(`📁 Curriculum:   ${DATA_FILE}`);
-    console.log(`📁 Gallery DB:  ${GALLERY_FILE}`);
-    console.log(`📁 Upload dir:   ${UPLOAD_DIR}\n`);
+    console.log(`📁 Gallery DB:    ${GALLERY_FILE}`);
+    console.log(`📁 Parkour DB:    ${PARKOUR_DATA_FILE}`);
+    console.log(`📁 Parkour Videos: ${PARKOUR_VIDEOS_FILE}`);
+    console.log(`📁 Calendar DB:     ${CALENDAR_FILE}`);
+    console.log(`📁 Upload dir:     ${UPLOAD_DIR}`);
+    console.log(`📁 Parkour dir:    ${PARKOUR_UPLOAD_DIR}`);
+    console.log(`📁 Parkour Videos: ${PARKOUR_VIDEO_DIR}\n`);
 });
