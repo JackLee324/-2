@@ -726,10 +726,193 @@
             background: #CBD5E1;
             border-radius: 3px;
         }
+
+        /* ─── Admin Login Overlay ─── */
+        #adminLoginOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            background: rgba(241, 245, 249, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+
+        #adminLoginOverlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 20px 60px rgba(29, 53, 87, 0.15);
+            text-align: center;
+        }
+
+        .login-card .lock-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-card h2 {
+            color: #1D3557;
+            font-size: 1.3rem;
+            margin: 0 0 0.25rem;
+        }
+
+        .login-card p {
+            color: #64748B;
+            font-size: 0.82rem;
+            margin: 0 0 1.5rem;
+        }
+
+        .login-card input[type="password"] {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #E2E8F0;
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+            letter-spacing: 0.15em;
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .login-card input[type="password"]:focus {
+            outline: none;
+            border-color: #1D3557;
+        }
+
+        .login-card .unlock-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: #1D3557;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .login-card .unlock-btn:hover {
+            background: #152943;
+        }
+
+        .login-error {
+            color: #DC2626;
+            font-size: 0.8rem;
+            margin-top: 0.75rem;
+            display: none;
+        }
+
+        /* ─── Security Settings Panel ─── */
+        .security-panel {
+            max-width: 480px;
+            margin: 0 auto 3rem;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            padding: 2rem;
+        }
+
+        .security-panel h3 {
+            margin: 0 0 0.25rem;
+            font-size: 1.1rem;
+            color: #1D3557;
+        }
+
+        .security-panel .subtitle {
+            font-size: 0.8rem;
+            color: #64748B;
+            margin: 0 0 1.5rem;
+        }
+
+        .security-panel .field {
+            margin-bottom: 1rem;
+        }
+
+        .security-panel .field label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+        }
+
+        .security-panel .field input {
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .security-panel .field input:focus {
+            outline: none;
+            border-color: #1D3557;
+            box-shadow: 0 0 0 3px rgba(29, 53, 87, 0.08);
+        }
+
+        .security-panel .btn-change {
+            width: 100%;
+            padding: 0.75rem;
+            background: #1D3557;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: background 0.2s;
+        }
+
+        .security-panel .btn-change:hover {
+            background: #152943;
+        }
+
+        .security-panel .btn-change:disabled {
+            background: #94A3B8;
+            cursor: not-allowed;
+        }
+
+        .security-note {
+            font-size: 0.72rem;
+            color: #94A3B8;
+            margin-top: 0.75rem;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
+
+    <!-- Admin Login Overlay -->
+    <div id="adminLoginOverlay">
+        <div class="login-card">
+            <div class="lock-icon">🔒</div>
+            <h2>管理后台门禁</h2>
+            <p>请输入安全密码以解锁后台管理界面</p>
+            <input type="password" id="loginPasswordInput" placeholder="输入密码" onkeydown="if(event.key==='Enter')attemptLogin()">
+            <button class="unlock-btn" onclick="attemptLogin()">🔓 安全解锁</button>
+            <div class="login-error" id="loginError"></div>
+        </div>
+    </div>
 
     <!-- Header -->
     <header class="main-header">
@@ -757,6 +940,7 @@
         <button class="tab-btn" data-tab="parkour" onclick="switchTab('parkour')">🌅 晨间跑酷管理</button>
         <button class="tab-btn" data-tab="calendar" onclick="switchTab('calendar')">📅 在线校历管理</button>
         <button class="tab-btn" data-tab="venues" onclick="switchTab('venues')">🏫 场地赋能管理</button>
+        <button class="tab-btn" data-tab="security" onclick="switchTab('security')">⚙️ 安全设置</button>
     </div>
 
     <!-- Toolbar -->
@@ -1087,6 +1271,133 @@
 
     <script>
         const BASE_API_URL = 'http://localhost:3000';
+        // 纯内存凭证，刷新页面或关闭标签后自动销毁，不可逆
+        window.currentAdminToken = null;
+
+        // ─── Admin Auth State Machine ────────────────────────────────────────────────
+        function getAdminToken() { return window.currentAdminToken; }
+
+        function initAdminAuth() {
+            // 每次页面加载强制显示锁屏，不读取任何本地缓存
+            showLoginOverlay();
+        }
+
+        function showLoginOverlay() {
+            const overlay = document.getElementById('adminLoginOverlay');
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                document.getElementById('loginPasswordInput').value = '';
+                document.getElementById('loginError').style.display = 'none';
+                document.getElementById('loginPasswordInput').focus();
+            }
+        }
+
+        function hideLoginOverlay() {
+            const overlay = document.getElementById('adminLoginOverlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        async function attemptLogin() {
+            const pwd = document.getElementById('loginPasswordInput').value;
+            const errEl = document.getElementById('loginError');
+            errEl.style.display = 'none';
+            if (!pwd) {
+                errEl.textContent = '请输入密码';
+                errEl.style.display = 'block';
+                return;
+            }
+            try {
+                const res = await fetch(BASE_API_URL + '/api/admin/login', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
+                    body: JSON.stringify({ password: pwd })
+                });
+                const json = await res.json();
+                if (json.success) {
+                    window.currentAdminToken = json.token;
+                    hideLoginOverlay();
+                    showToast('✅ 已解锁管理后台', 'success');
+                } else {
+                    errEl.textContent = json.error || '安全密码错误，请重新输入';
+                    errEl.style.display = 'block';
+                    document.getElementById('loginPasswordInput').value = '';
+                    document.getElementById('loginPasswordInput').focus();
+                }
+            } catch (e) {
+                errEl.textContent = '网络错误，请稍后重试';
+                errEl.style.display = 'block';
+            }
+        }
+
+        function adminLogout() {
+            window.currentAdminToken = null;
+            showLoginOverlay();
+        }
+
+        async function handlePasswordChange() {
+            const oldPwd = document.getElementById('secOldPassword').value;
+            const newPwd = document.getElementById('secNewPassword').value;
+            const confirmPwd = document.getElementById('secConfirmPassword').value;
+            const msgEl = document.getElementById('secMessage');
+            const btn = document.getElementById('secChangeBtn');
+            msgEl.textContent = '';
+            msgEl.style.color = '';
+
+            if (!oldPwd || !newPwd || !confirmPwd) {
+                msgEl.textContent = '请填写所有字段';
+                msgEl.style.color = '#DC2626';
+                return;
+            }
+            if (newPwd.length < 6) {
+                msgEl.textContent = '新密码长度至少6位';
+                msgEl.style.color = '#DC2626';
+                return;
+            }
+            if (newPwd !== confirmPwd) {
+                msgEl.textContent = '两次输入的新密码不一致';
+                msgEl.style.color = '#DC2626';
+                return;
+            }
+            btn.disabled = true;
+            btn.textContent = '修改中...';
+            try {
+                const res = await fetch(BASE_API_URL + '/api/admin/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
+                    body: JSON.stringify({ oldPassword: oldPwd, newPassword: newPwd })
+                });
+                const json = await res.json();
+                if (json.success) {
+                    window.currentAdminToken = null;
+                    msgEl.textContent = '✅ 密码修改成功，正在重新登录...';
+                    msgEl.style.color = '#2A9D8F';
+                    setTimeout(() => { window.location.reload(); }, 1500);
+                } else {
+                    msgEl.textContent = json.error || '修改失败';
+                    msgEl.style.color = '#DC2626';
+                    btn.disabled = false;
+                    btn.textContent = '🔒 确认修改';
+                }
+            } catch (e) {
+                msgEl.textContent = '网络错误，请稍后重试';
+                msgEl.style.color = '#DC2626';
+                btn.disabled = false;
+                btn.textContent = '🔒 确认修改';
+            }
+        }
+
+        // Run auth check on page load
+        initAdminAuth();
         const API = BASE_API_URL + '/api/curriculum';
         let currentTab = 'prek';
         let allData = { prek: [], k: [], climbing: [] };
@@ -1129,13 +1440,13 @@
                 b.classList.toggle('active', b.dataset.tab === tab);
             });
             document.getElementById('currentTabLabel').textContent =
-                { prek: 'PreK PE', k: 'K PE', climbing: 'Climbing & Swimming', gallery: '奥林匹克相册', parkour: '晨间跑酷管理', calendar: '在线校历管理', venues: '场地赋能管理' }[tab] || tab;
+                { prek: 'PreK PE', k: 'K PE', climbing: 'Climbing & Swimming', gallery: '奥林匹克相册', parkour: '晨间跑酷管理', calendar: '在线校历管理', venues: '场地赋能管理', security: '安全设置' }[tab] || tab;
 
             // Show/hide curriculum section
             const tableWrap = document.querySelector('.table-wrap');
             const toolbar = document.querySelector('.toolbar');
-            if (tableWrap) tableWrap.classList.toggle('hidden', tab === 'gallery' || tab === 'parkour' || tab === 'calendar' || tab === 'venues');
-            if (toolbar) toolbar.classList.toggle('hidden', tab === 'gallery' || tab === 'parkour' || tab === 'calendar' || tab === 'venues');
+            if (tableWrap) tableWrap.classList.toggle('hidden', tab === 'gallery' || tab === 'parkour' || tab === 'calendar' || tab === 'venues' || tab === 'security');
+            if (toolbar) toolbar.classList.toggle('hidden', tab === 'gallery' || tab === 'parkour' || tab === 'calendar' || tab === 'venues' || tab === 'security');
 
             // Show/hide gallery section
             const gallerySection = document.getElementById('gallerySection');
@@ -1160,6 +1471,10 @@
             if (themeConfigSection)  themeConfigSection.classList.toggle('hidden', tab !== 'calendar');
             if (calSection)         calSection.classList.toggle('hidden', tab !== 'calendar');
             if (calListSection)     calListSection.classList.toggle('hidden', tab !== 'calendar');
+
+            // Show/hide security section
+            const securitySection = document.getElementById('securitySection');
+            if (securitySection) securitySection.classList.toggle('hidden', tab !== 'security');
 
             if (tab === 'gallery') {
                 renderGallery();
@@ -1401,7 +1716,10 @@
 
                 const res = await fetch(`${API}/${tab}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
                     body: JSON.stringify(allData[tab]),
                 });
                 const json = await res.json();
@@ -1443,7 +1761,10 @@
                 allData[tab].splice(index, 1);
                 const res = await fetch(`${API}/${tab}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
                     body: JSON.stringify(allData[tab]),
                 });
                 const json = await res.json();
@@ -1490,7 +1811,10 @@
                 if (imagePath) {
                     await fetch(BASE_API_URL + '/api/parkour-image', {
                         method: 'DELETE',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
                         body: JSON.stringify({ imagePath })
                     });
                 }
@@ -1499,7 +1823,10 @@
                 // Save to backend
                 const res = await fetch(BASE_API_URL + '/api/parkour', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
                     body: JSON.stringify(parkourData)
                 });
                 const json = await res.json();
@@ -1576,7 +1903,7 @@
             btn.disabled = true;
             btn.textContent = '⬆️ 上传中...';
             try {
-                const res = await fetch(`${GALLERY_API}/upload`, { method: 'POST', body: formData });
+                const res = await fetch(`${GALLERY_API}/upload`, { method: 'POST', headers: { 'X-Admin-Token': getAdminToken() || '' }, body: formData });
                 const json = await res.json();
                 if (!json.success) throw new Error(json.error);
                 showToast('✅ 上传成功', 'success');
@@ -1656,7 +1983,10 @@
             try {
                 const res = await fetch(`${GALLERY_API}/gallery/${id}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
                     body: JSON.stringify(updates),
                 });
                 const json = await res.json();
@@ -1817,7 +2147,10 @@
                     if (editParkourIndex !== null && existing && existing.imagePath && existing.imagePath !== imagePath) {
                         await fetch(BASE_API_URL + '/api/parkour-image', {
                             method: 'DELETE',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
                             body: JSON.stringify({ imagePath: existing.imagePath })
                         });
                     }
@@ -1842,7 +2175,10 @@
                 // Save all to backend
                 const saveRes = await fetch(BASE_API_URL + '/api/parkour', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
                     body: JSON.stringify(parkourData)
                 });
                 const saveJson = await saveRes.json();
@@ -1885,7 +2221,10 @@
                 });
                 const res = await fetch(BASE_API_URL + '/api/parkour', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
                     body: JSON.stringify(parkourData)
                 });
                 const json = await res.json();
@@ -2047,7 +2386,10 @@
             try {
                 const res = await fetch(BASE_API_URL + '/api/calendar/themes', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
                     body: JSON.stringify(themes)
                 });
                 const json = await res.json();
@@ -2117,7 +2459,10 @@
             try {
                 const res = await fetch(BASE_API_URL + '/api/calendar/notice', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
                     body: JSON.stringify({ isActive, type, content })
                 });
                 const json = await res.json();
@@ -2285,7 +2630,10 @@
                 if (editingEventId) {
                     res = await fetch(BASE_API_URL + `/api/calendar/event/${editingEventId}`, {
                         method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
                         body: JSON.stringify(body)
                     });
                     json = await res.json();
@@ -2294,7 +2642,10 @@
                 } else {
                     res = await fetch(BASE_API_URL + '/api/calendar/event', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
                         body: JSON.stringify(body)
                     });
                     json = await res.json();
@@ -2602,6 +2953,28 @@
     <!-- Toast -->
     <div id="toast" style="display:none;position:fixed;bottom:2rem;right:2rem;background:#1D3557;color:white;padding:0.75rem 1.5rem;border-radius:10px;font-size:0.85rem;z-index:999999;box-shadow:0 4px 12px rgba(0,0,0,0.2);"></div>
 
+    <!-- ─── Security Settings Tab Content ─────────────────────────────────── -->
+    <div id="securitySection" class="hidden" style="max-width:1100px;margin:0 auto 3rem;padding:0 1.5rem;">
+        <div class="security-panel">
+            <h3>🔐 修改安全密码</h3>
+            <p class="subtitle">请妥善保管密码，修改后需重新登录</p>
+            <div class="field">
+                <label>当前密码</label>
+                <input type="password" id="secOldPassword" placeholder="输入当前密码">
+            </div>
+            <div class="field">
+                <label>新密码 <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#94A3B8;">（至少6位）</span></label>
+                <input type="password" id="secNewPassword" placeholder="输入新密码">
+            </div>
+            <div class="field">
+                <label>确认新密码</label>
+                <input type="password" id="secConfirmPassword" placeholder="再次输入新密码">
+            </div>
+            <button class="btn-change" id="secChangeBtn" onclick="handlePasswordChange()">🔒 确认修改</button>
+            <p class="security-note" id="secMessage"></p>
+        </div>
+    </div>
+
     <script>
     // ─── Venues Admin Logic ──────────────────────────────────────────────────────
     const VENUES_API = 'http://localhost:3000/api';
@@ -2793,7 +3166,10 @@
             try {
                 const res = await fetch(VENUES_API + '/venues/aux/' + currentEditingAuxId, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': getAdminToken() || ''
+                    },
                     body: JSON.stringify({ name, description, safety, image: imagePath })
                 });
                 const json = await res.json();

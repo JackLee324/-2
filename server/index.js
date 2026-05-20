@@ -18,6 +18,7 @@ const PARKOUR_UPLOAD_DIR = path.join(__dirname, '..', 'public', 'assets', 'parko
 const PARKOUR_VIDEO_DIR = path.join(__dirname, '..', 'public', 'assets', 'parkour-videos');
 const VENUES_FILE     = path.join(__dirname, 'data', 'campus_venues.json');
 const FIELD_UPLOAD_DIR = path.join(__dirname, '..', 'public', 'assets', 'fields');
+const ADMIN_AUTH_FILE  = path.join(__dirname, 'data', 'admin_auth.json');
 
 // ─── Multer Config ────────────────────────────────────────────────────────────
 const storage = multer.diskStorage({
@@ -141,6 +142,33 @@ function writeParkour(data) {
     fs.writeFileSync(PARKOUR_DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
 }
 
+// ─── Admin Auth Helpers ─────────────────────────────────────────────────────────
+function readAdminAuth() {
+    if (!fs.existsSync(ADMIN_AUTH_FILE)) {
+        fs.mkdirSync(path.dirname(ADMIN_AUTH_FILE), { recursive: true });
+        const defaultAuth = {
+            adminPassword: "123456",
+            adminToken: "tsinglan_pe_secure_token_2026"
+        };
+        fs.writeFileSync(ADMIN_AUTH_FILE, JSON.stringify(defaultAuth, null, 2), 'utf8');
+    }
+    return JSON.parse(fs.readFileSync(ADMIN_AUTH_FILE, 'utf8'));
+}
+
+function writeAdminAuth(data) {
+    fs.writeFileSync(ADMIN_AUTH_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// ─── Admin Auth Middleware ─────────────────────────────────────────────────────
+function validateAdminSession(req, res, next) {
+    const token = req.headers['x-admin-token'];
+    const auth = readAdminAuth();
+    if (!token || token !== auth.adminToken) {
+        return res.status(401).json({ success: false, error: '未授权访问，请重新登录' });
+    }
+    next();
+}
+
 // ─── Parkour Video Helpers ─────────────────────────────────────────────────────
 function readParkourVideos() {
     if (!fs.existsSync(PARKOUR_VIDEOS_FILE)) {
@@ -230,7 +258,7 @@ app.get('/api/curriculum/:tab', (req, res) => {
 });
 
 // ─── PUT /api/curriculum/:tab ────────────────────────────────────────────────
-app.put('/api/curriculum/:tab', (req, res) => {
+app.put('/api/curriculum/:tab', validateAdminSession, (req, res) => {
     try {
         const { tab } = req.params;
         const validTabs = ['prek', 'k', 'climbing'];
@@ -251,7 +279,7 @@ app.put('/api/curriculum/:tab', (req, res) => {
 });
 
 // ─── POST /api/curriculum/:tab ───────────────────────────────────────────────
-app.post('/api/curriculum/:tab', (req, res) => {
+app.post('/api/curriculum/:tab', validateAdminSession, (req, res) => {
     try {
         const { tab } = req.params;
         const validTabs = ['prek', 'k', 'climbing'];
@@ -284,7 +312,7 @@ app.post('/api/curriculum/:tab', (req, res) => {
 });
 
 // ─── DELETE /api/curriculum/:tab/:week ───────────────────────────────────────
-app.delete('/api/curriculum/:tab/:week', (req, res) => {
+app.delete('/api/curriculum/:tab/:week', validateAdminSession, (req, res) => {
     try {
         const { tab, week } = req.params;
         const validTabs = ['prek', 'k', 'climbing'];
@@ -333,7 +361,7 @@ function handleMulterError(err, req, res, next) {
 }
 
 // POST /api/upload — upload image or video
-app.post('/api/upload', upload.single('file'), handleMulterError, (req, res) => {
+app.post('/api/upload', validateAdminSession, upload.single('file'), handleMulterError, (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ success: false, error: 'No file received' });
@@ -358,7 +386,7 @@ app.post('/api/upload', upload.single('file'), handleMulterError, (req, res) => 
 });
 
 // PUT /api/gallery/:id — update caption/date
-app.put('/api/gallery/:id', (req, res) => {
+app.put('/api/gallery/:id', validateAdminSession, (req, res) => {
     try {
         const { id } = req.params;
         const gallery = readGallery();
@@ -375,7 +403,7 @@ app.put('/api/gallery/:id', (req, res) => {
 });
 
 // DELETE /api/gallery/:id — remove gallery item and physical file
-app.delete('/api/gallery/:id', (req, res) => {
+app.delete('/api/gallery/:id', validateAdminSession, (req, res) => {
     try {
         const { id } = req.params;
         const gallery = readGallery();
@@ -391,6 +419,43 @@ app.delete('/api/gallery/:id', (req, res) => {
             fs.unlinkSync(filePath);
         }
         res.json({ success: true, deleted });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ─── Admin Login API ───────────────────────────────────────────────────────────
+app.post('/api/admin/login', (req, res) => {
+    try {
+        const { password } = req.body;
+        const auth = readAdminAuth();
+        if (password === auth.adminPassword) {
+            res.json({ success: true, token: auth.adminToken });
+        } else {
+            res.status(401).json({ success: false, error: '安全密码错误，请重新输入' });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ─── Admin Change Password API ─────────────────────────────────────────────────
+app.post('/api/admin/change-password', (req, res) => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+        if (!oldPassword || !newPassword) {
+            return res.status(400).json({ success: false, error: '旧密码和新密码均不能为空' });
+        }
+        if (newPassword.length < 6) {
+            return res.status(400).json({ success: false, error: '新密码长度至少6位' });
+        }
+        const auth = readAdminAuth();
+        if (oldPassword !== auth.adminPassword) {
+            return res.status(401).json({ success: false, error: '旧密码错误' });
+        }
+        auth.adminPassword = newPassword;
+        writeAdminAuth(auth);
+        res.json({ success: true, message: '密码修改成功，请重新登录' });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
@@ -412,7 +477,7 @@ app.get('/api/parkour', (req, res) => {
 });
 
 // ─── PUT /api/parkour ─────────────────────────────────────────────────────────
-app.put('/api/parkour', (req, res) => {
+app.put('/api/parkour', validateAdminSession, (req, res) => {
     try {
         const rows = req.body;
         if (!Array.isArray(rows)) {
@@ -426,7 +491,7 @@ app.put('/api/parkour', (req, res) => {
 });
 
 // ─── POST /api/upload-parkour ─────────────────────────────────────────────────
-app.post('/api/upload-parkour', uploadParkour.single('trackImage'), handleMulterError, (req, res) => {
+app.post('/api/upload-parkour', validateAdminSession, uploadParkour.single('trackImage'), handleMulterError, (req, res) => {
     if (!req.file) {
         return res.status(400).json({ success: false, error: 'No file uploaded' });
     }
@@ -441,7 +506,7 @@ app.post('/api/upload-parkour', uploadParkour.single('trackImage'), handleMulter
 });
 
 // ─── DELETE /api/parkour-image ────────────────────────────────────────────────
-app.delete('/api/parkour-image', (req, res) => {
+app.delete('/api/parkour-image', validateAdminSession, (req, res) => {
     try {
         const { imagePath } = req.body;
         if (!imagePath) return res.status(400).json({ success: false, error: 'imagePath required' });
@@ -466,7 +531,7 @@ app.get('/api/parkour-videos', (req, res) => {
 });
 
 // ─── POST /api/upload-parkour-video ──────────────────────────────────────────
-app.post('/api/upload-parkour-video', uploadParkourVideo.single('videoFile'), handleMulterError, (req, res) => {
+app.post('/api/upload-parkour-video', validateAdminSession, uploadParkourVideo.single('videoFile'), handleMulterError, (req, res) => {
     if (!req.file) {
         return res.status(400).json({ success: false, error: 'No file received' });
     }
@@ -486,7 +551,7 @@ app.post('/api/upload-parkour-video', uploadParkourVideo.single('videoFile'), ha
 });
 
 // ─── DELETE /api/parkour-video/:id ───────────────────────────────────────────
-app.delete('/api/parkour-video/:id', (req, res) => {
+app.delete('/api/parkour-video/:id', validateAdminSession, (req, res) => {
     try {
         const { id } = req.params;
         const videos = readParkourVideos();
@@ -558,7 +623,7 @@ app.get('/api/time', (req, res) => {
 });
 
 // POST /api/calendar/event — add a new event
-app.post('/api/calendar/event', (req, res) => {
+app.post('/api/calendar/event', validateAdminSession, (req, res) => {
     try {
         const { date, endDate, title, titleEn, type, description, backgroundColor, textColor } = req.body;
         if (!date || !title || !type) {
@@ -590,7 +655,7 @@ app.post('/api/calendar/event', (req, res) => {
 });
 
 // PUT /api/calendar/event/:id — update an event
-app.put('/api/calendar/event/:id', (req, res) => {
+app.put('/api/calendar/event/:id', validateAdminSession, (req, res) => {
     try {
         const { id } = req.params;
         const cal = readCalendar();
@@ -611,7 +676,7 @@ app.put('/api/calendar/event/:id', (req, res) => {
 });
 
 // DELETE /api/calendar/event/:id — delete an event
-app.delete('/api/calendar/event/:id', (req, res) => {
+app.delete('/api/calendar/event/:id', validateAdminSession, (req, res) => {
     try {
         const { id } = req.params;
         const cal = readCalendar();
@@ -628,7 +693,7 @@ app.delete('/api/calendar/event/:id', (req, res) => {
 });
 
 // PUT /api/calendar/themes — update monthly themes
-app.put('/api/calendar/themes', (req, res) => {
+app.put('/api/calendar/themes', validateAdminSession, (req, res) => {
     try {
         const themes = req.body;
         if (!Array.isArray(themes)) {
@@ -644,7 +709,7 @@ app.put('/api/calendar/themes', (req, res) => {
 });
 
 // PUT /api/calendar/notice — update global notice
-app.put('/api/calendar/notice', (req, res) => {
+app.put('/api/calendar/notice', validateAdminSession, (req, res) => {
     try {
         const { isActive, type, content } = req.body;
         const validTypes = ['danger', 'info', 'success'];
@@ -688,7 +753,7 @@ app.get('/api/venues', (req, res) => {
 });
 
 // ─── PUT /api/venues/core/:id ────────────────────────────────────────────────
-app.put('/api/venues/core/:id', (req, res) => {
+app.put('/api/venues/core/:id', validateAdminSession, (req, res) => {
     try {
         const { id } = req.params;
         const updates = req.body;
@@ -710,7 +775,7 @@ app.put('/api/venues/core/:id', (req, res) => {
 });
 
 // ─── PUT /api/venues/aux/:id ──────────────────────────────────────────────────
-app.put('/api/venues/aux/:id', (req, res) => {
+app.put('/api/venues/aux/:id', validateAdminSession, (req, res) => {
     try {
         const { id } = req.params;
         const updates = req.body;
@@ -732,7 +797,7 @@ app.put('/api/venues/aux/:id', (req, res) => {
 });
 
 // ─── DELETE /api/venues/aux/:id ─────────────────────────────────────────────
-app.delete('/api/venues/aux/:id', (req, res) => {
+app.delete('/api/venues/aux/:id', validateAdminSession, (req, res) => {
     try {
         const { id } = req.params;
         const db = readVenues();
@@ -750,7 +815,7 @@ app.delete('/api/venues/aux/:id', (req, res) => {
 
 // ─── POST /api/venues ─────────────────────────────────────────────────────────
 // Legacy bulk overwrite endpoint — used by admin saveAuxVenues / saveRules
-app.post('/api/venues', (req, res) => {
+app.post('/api/venues', validateAdminSession, (req, res) => {
     try {
         const data = req.body;
         if (!data || typeof data !== 'object') {
@@ -765,7 +830,7 @@ app.post('/api/venues', (req, res) => {
 
 // ─── PUT /api/venues ─────────────────────────────────────────────────────────
 // Legacy bulk replace endpoint — used by admin saveAuxVenues / saveRules
-app.put('/api/venues', (req, res) => {
+app.put('/api/venues', validateAdminSession, (req, res) => {
     try {
         const data = req.body;
         if (!data || typeof data !== 'object') {
@@ -779,7 +844,7 @@ app.put('/api/venues', (req, res) => {
 });
 
 // ─── POST /api/upload-venue ───────────────────────────────────────────────────
-app.post('/api/upload-venue', uploadField.single('fieldImage'), handleMulterError, (req, res) => {
+app.post('/api/upload-venue', validateAdminSession, uploadField.single('fieldImage'), handleMulterError, (req, res) => {
     if (!req.file) {
         return res.status(400).json({ success: false, error: 'No file uploaded' });
     }
