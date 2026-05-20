@@ -16,6 +16,8 @@ const CALENDAR_FILE = path.join(__dirname, 'data', 'academic_calendar.json');
 const UPLOAD_DIR     = path.join(__dirname, '..', 'public', 'assets', 'olympic');
 const PARKOUR_UPLOAD_DIR = path.join(__dirname, '..', 'public', 'assets', 'parkour');
 const PARKOUR_VIDEO_DIR = path.join(__dirname, '..', 'public', 'assets', 'parkour-videos');
+const VENUES_FILE     = path.join(__dirname, 'data', 'campus_venues.json');
+const FIELD_UPLOAD_DIR = path.join(__dirname, '..', 'public', 'assets', 'fields');
 
 // ─── Multer Config ────────────────────────────────────────────────────────────
 const storage = multer.diskStorage({
@@ -46,7 +48,57 @@ const upload = multer({
     }
 });
 
-// ─── Middleware ───────────────────────────────────────────────────────────────
+// ─── Field Upload (Venue Images) ─────────────────────────────────────────────
+const fieldStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        if (!fs.existsSync(FIELD_UPLOAD_DIR)) {
+            fs.mkdirSync(FIELD_UPLOAD_DIR, { recursive: true });
+        }
+        cb(null, FIELD_UPLOAD_DIR);
+    },
+    filename: (req, file, cb) => {
+        const ts = Date.now();
+        const ext = path.extname(file.originalname).toLowerCase();
+        cb(null, `field_${ts}${ext}`);
+    }
+});
+
+const uploadField = multer({
+    storage: fieldStorage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    fileFilter: (req, file, cb) => {
+        const allowed = /\.(jpg|jpeg|png|webp)$/i;
+        if (allowed.test(file.originalname)) return cb(null, true);
+        cb(new Error('Only image files (jpg, jpeg, png, webp) are allowed'), false);
+    }
+});
+
+function handleMulterError(err, req, res, next) {
+    if (err instanceof multer.MulterError) {
+        return res.status(400).json({ success: false, error: err.message });
+    } else if (err) {
+        return res.status(400).json({ success: false, error: err.message });
+    }
+    next();
+}
+
+// ─── Venue Helpers ────────────────────────────────────────────────────────────
+function readVenues() {
+    if (!fs.existsSync(VENUES_FILE)) {
+        fs.mkdirSync(path.dirname(VENUES_FILE), { recursive: true });
+        const defaultData = {
+            coreVenues: [],
+            auxVenues: [],
+            rules: { equipmentReturn: '', bikeParking: '' }
+        };
+        fs.writeFileSync(VENUES_FILE, JSON.stringify(defaultData, null, 2), 'utf8');
+    }
+    return JSON.parse(fs.readFileSync(VENUES_FILE, 'utf8'));
+}
+
+function writeVenues(data) {
+    fs.writeFileSync(VENUES_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '..', 'public')));
@@ -612,6 +664,135 @@ app.put('/api/calendar/notice', (req, res) => {
     }
 });
 
+// ─── Venues Helpers ────────────────────────────────────────────────────────────
+function readVenues() {
+    if (!fs.existsSync(VENUES_FILE)) {
+        fs.mkdirSync(path.dirname(VENUES_FILE), { recursive: true });
+        fs.writeFileSync(VENUES_FILE, JSON.stringify({ coreVenues: [], auxVenues: [], rules: { equipmentReturn: '', bikeParking: '' } }, null, 2));
+    }
+    return JSON.parse(fs.readFileSync(VENUES_FILE, 'utf8'));
+}
+
+function writeVenues(data) {
+    fs.writeFileSync(VENUES_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// ─── GET /api/venues ─────────────────────────────────────────────────────────
+app.get('/api/venues', (req, res) => {
+    try {
+        const data = readVenues();
+        res.json({ success: true, data });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ─── PUT /api/venues/core/:id ────────────────────────────────────────────────
+app.put('/api/venues/core/:id', (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+        if (!updates || typeof updates !== 'object') {
+            return res.status(400).json({ success: false, error: 'Invalid venue data' });
+        }
+        // Deep-merge: read full JSON, only update the matching core venue, never touch auxVenues
+        const db = readVenues();
+        const coreIdx = db.coreVenues.findIndex(v => v.id === id);
+        if (coreIdx < 0) {
+            return res.status(404).json({ success: false, error: 'Core venue not found' });
+        }
+        db.coreVenues[coreIdx] = { ...db.coreVenues[coreIdx], ...updates, id }; // preserve id
+        writeVenues(db);
+        res.json({ success: true, message: 'Core venue updated', venue: db.coreVenues[coreIdx] });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ─── PUT /api/venues/aux/:id ──────────────────────────────────────────────────
+app.put('/api/venues/aux/:id', (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+        if (!updates || typeof updates !== 'object') {
+            return res.status(400).json({ success: false, error: 'Invalid venue data' });
+        }
+        // Deep-merge: read full JSON, only update the matching aux venue, never touch coreVenues
+        const db = readVenues();
+        const auxIdx = db.auxVenues.findIndex(v => v.id === id);
+        if (auxIdx < 0) {
+            return res.status(404).json({ success: false, error: 'Auxiliary venue not found' });
+        }
+        db.auxVenues[auxIdx] = { ...db.auxVenues[auxIdx], ...updates, id }; // preserve id
+        writeVenues(db);
+        res.json({ success: true, message: 'Auxiliary venue updated', venue: db.auxVenues[auxIdx] });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ─── DELETE /api/venues/aux/:id ─────────────────────────────────────────────
+app.delete('/api/venues/aux/:id', (req, res) => {
+    try {
+        const { id } = req.params;
+        const db = readVenues();
+        const lenBefore = db.auxVenues.length;
+        db.auxVenues = db.auxVenues.filter(v => v.id !== id);
+        if (db.auxVenues.length === lenBefore) {
+            return res.status(404).json({ success: false, error: 'Auxiliary venue not found' });
+        }
+        writeVenues(db);
+        res.json({ success: true, message: 'Auxiliary venue deleted' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ─── POST /api/venues ─────────────────────────────────────────────────────────
+// Legacy bulk overwrite endpoint — used by admin saveAuxVenues / saveRules
+app.post('/api/venues', (req, res) => {
+    try {
+        const data = req.body;
+        if (!data || typeof data !== 'object') {
+            return res.status(400).json({ success: false, error: 'Invalid venues data' });
+        }
+        writeVenues(data);
+        res.json({ success: true, message: 'Venues updated', data });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ─── PUT /api/venues ─────────────────────────────────────────────────────────
+// Legacy bulk replace endpoint — used by admin saveAuxVenues / saveRules
+app.put('/api/venues', (req, res) => {
+    try {
+        const data = req.body;
+        if (!data || typeof data !== 'object') {
+            return res.status(400).json({ success: false, error: 'Invalid venues data' });
+        }
+        writeVenues(data);
+        res.json({ success: true, message: 'Venues updated', data });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ─── POST /api/upload-venue ───────────────────────────────────────────────────
+app.post('/api/upload-venue', uploadField.single('fieldImage'), handleMulterError, (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ success: false, error: 'No file uploaded' });
+    }
+    const imagePath = `/assets/fields/${req.file.filename}`;
+    res.json({
+        success: true,
+        imagePath,
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size
+    });
+});
+
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'admin.html'));
 });
@@ -626,6 +807,7 @@ app.listen(PORT, () => {
     console.log(`📁 Parkour DB:    ${PARKOUR_DATA_FILE}`);
     console.log(`📁 Parkour Videos: ${PARKOUR_VIDEOS_FILE}`);
     console.log(`📁 Calendar DB:     ${CALENDAR_FILE}`);
+    console.log(`📁 Venues DB:       ${VENUES_FILE}`);
     console.log(`📁 Upload dir:     ${UPLOAD_DIR}`);
     console.log(`📁 Parkour dir:    ${PARKOUR_UPLOAD_DIR}`);
     console.log(`📁 Parkour Videos: ${PARKOUR_VIDEO_DIR}\n`);

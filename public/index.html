@@ -221,16 +221,31 @@
         }
 
         .hero-stats {
-            display: flex;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: 1.5rem;
-            flex-wrap: wrap;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1024px) {
+            .hero-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.2rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero-stats {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
         }
 
         .stat {
             background: white;
             backdrop-filter: blur(10px);
-            padding: 2rem 2rem;
             border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
@@ -239,11 +254,10 @@
             display: flex;
             flex-direction: column;
             cursor: pointer;
-            flex: 1;
-            min-width: 200px;
-            max-width: 320px;
             align-items: center;
             text-align: center;
+            min-height: 280px;
+            box-sizing: border-box;
         }
 
         .stat:hover {
@@ -252,10 +266,9 @@
         }
 
         .stat-number {
-            font-size: 4rem;
+            font-size: 3.8rem;
             font-weight: 900;
             font-family: 'Playfair Display', 'Noto Serif SC', serif;
-            color: var(--primary-red);
             line-height: 1;
             margin-bottom: 0.5rem;
         }
@@ -292,7 +305,6 @@
             display: inline-block;
             font-size: 0.8rem;
             color: white;
-            background: var(--accent-teal);
             padding: 8px 18px;
             border-radius: 20px;
             font-weight: 600;
@@ -302,11 +314,63 @@
         .stat-tag-en {
             display: block;
             font-size: 0.7rem;
-            color: var(--accent-teal);
             margin-top: 0.5rem;
             font-weight: 500;
             min-height: 40px;
             text-align: center;
+        }
+
+        /* 四色导航卡片系统 */
+        /* 卡片 1：清澜金 (晨间唤醒) */
+        .stat:nth-child(1) .stat-number {
+            color: #F59E0B;
+        }
+
+        .stat:nth-child(1) .stat-tag {
+            background: #F59E0B;
+        }
+
+        .stat:nth-child(1) .stat-tag-en {
+            color: #F59E0B;
+        }
+
+        /* 卡片 2：清澜蓝 (科学课堂) */
+        .stat:nth-child(2) .stat-number {
+            color: #1D3557;
+        }
+
+        .stat:nth-child(2) .stat-tag {
+            background: #1D3557;
+        }
+
+        .stat:nth-child(2) .stat-tag-en {
+            color: #1D3557;
+        }
+
+        /* 卡片 3：清澜绿 (全能场地) */
+        .stat:nth-child(3) .stat-number {
+            color: #2A9D8F;
+        }
+
+        .stat:nth-child(3) .stat-tag {
+            background: #2A9D8F;
+        }
+
+        .stat:nth-child(3) .stat-tag-en {
+            color: #2A9D8F;
+        }
+
+        /* 卡片 4：清澜红 (延时俱乐部) */
+        .stat:nth-child(4) .stat-number {
+            color: #E63946;
+        }
+
+        .stat:nth-child(4) .stat-tag {
+            background: #E63946;
+        }
+
+        .stat:nth-child(4) .stat-tag-en {
+            color: #E63946;
         }
 
         /* Abilities Section */
@@ -1173,6 +1237,7 @@
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(244, 162, 97, 0.15);
         }
+
         .parkour-featured-header {
             background: #F4A261;
             padding: 0.6rem 1.5rem;
@@ -1180,28 +1245,33 @@
             align-items: center;
             gap: 0.5rem;
         }
+
         .parkour-featured-header span {
             font-size: 0.85rem;
             font-weight: 700;
             color: white;
             letter-spacing: 0.05em;
         }
+
         .parkour-featured-body {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0;
         }
+
         .parkour-featured-image {
             position: relative;
             overflow: hidden;
             min-height: 300px;
         }
+
         .parkour-featured-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
         }
+
         .parkour-featured-info {
             padding: 1.75rem 2rem;
             display: flex;
@@ -1209,17 +1279,20 @@
             justify-content: center;
             gap: 0.5rem;
         }
+
         .parkour-track-name {
             font-size: 1.5rem;
             font-weight: 800;
             color: #E63946;
             margin-bottom: 0.25rem;
         }
+
         .parkour-class-teacher {
             font-size: 0.95rem;
             color: #1D3557;
             font-weight: 600;
         }
+
         .parkour-week-badge {
             display: inline-block;
             background: #1D3557;
@@ -1230,6 +1303,7 @@
             font-weight: 700;
             margin-bottom: 0.5rem;
         }
+
         .parkour-safety-alert {
             margin-top: 0.75rem;
             background: #FEF3C7;
@@ -1237,6 +1311,7 @@
             border-radius: 0 10px 10px 0;
             padding: 0.75rem 1rem;
         }
+
         .parkour-safety-title {
             font-size: 0.8rem;
             font-weight: 800;
@@ -1246,6 +1321,7 @@
             align-items: center;
             gap: 0.4rem;
         }
+
         .parkour-safety-notes {
             font-size: 0.82rem;
             color: #78350F;
@@ -1253,13 +1329,22 @@
             word-break: break-word;
             line-height: 1.6;
         }
-        .parkour-safety-notes .warn { color: #DC2626; font-weight: 700; }
-        .parkour-safety-notes .ok { color: #15803D; font-weight: 700; }
+
+        .parkour-safety-notes .warn {
+            color: #DC2626;
+            font-weight: 700;
+        }
+
+        .parkour-safety-notes .ok {
+            color: #15803D;
+            font-weight: 700;
+        }
 
         /* Parkour Schedule Table */
         .parkour-schedule {
             margin: 2.5rem 0;
         }
+
         .parkour-schedule-title {
             font-size: 1.2rem;
             font-weight: 800;
@@ -1269,21 +1354,25 @@
             align-items: center;
             gap: 0.5rem;
         }
+
         .parkour-table-wrap {
             overflow-x: auto;
             border-radius: 16px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
             background: white;
         }
+
         .parkour-schedule table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.88rem;
         }
+
         .parkour-schedule thead tr {
             background: #1D3557;
             color: white;
         }
+
         .parkour-schedule th {
             padding: 0.75rem 1rem;
             text-align: left;
@@ -1291,20 +1380,25 @@
             font-size: 0.8rem;
             white-space: nowrap;
         }
+
         .parkour-schedule tbody tr {
             border-bottom: 1px solid #F1F5F9;
             transition: background 0.15s;
         }
+
         .parkour-schedule tbody tr:hover {
             background: #F8FAFC;
         }
+
         .parkour-schedule td {
             padding: 0.7rem 1rem;
             vertical-align: middle;
         }
+
         .parkour-schedule .pk-week {
             white-space: nowrap;
         }
+
         .parkour-schedule .pk-week span {
             background: #1D3557;
             color: white;
@@ -1313,19 +1407,23 @@
             font-size: 0.75rem;
             font-weight: 700;
         }
+
         .parkour-schedule .pk-class {
             font-weight: 700;
             color: #1D3557;
             font-size: 0.9rem;
         }
+
         .parkour-schedule .pk-teacher {
             font-size: 0.78rem;
             color: #64748B;
         }
+
         .parkour-schedule .pk-track {
             font-weight: 700;
             color: #E63946;
         }
+
         .parkour-schedule .pk-safety {
             font-size: 0.75rem;
             color: #B45309;
@@ -1333,6 +1431,7 @@
             white-space: pre-wrap;
             word-break: break-word;
         }
+
         .pk-map-btn {
             display: inline-flex;
             align-items: center;
@@ -1347,10 +1446,12 @@
             cursor: pointer;
             transition: background 0.2s, transform 0.15s;
         }
+
         .pk-map-btn:hover {
             background: #20786C;
             transform: scale(1.05);
         }
+
         .pk-map-btn-disabled {
             background: #E2E8F0 !important;
             color: #94A3B8 !important;
@@ -1363,51 +1464,59 @@
             background: white;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
             cursor: pointer;
             transition: transform 0.25s ease, box-shadow 0.25s ease;
             border: 1px solid #F1F5F9;
         }
+
         .pk-video-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(29,53,87,0.12);
+            box-shadow: 0 8px 24px rgba(29, 53, 87, 0.12);
         }
+
         .pk-video-thumb {
             position: relative;
             height: 160px;
             overflow: hidden;
             background: #1D3557;
         }
+
         .pk-video-thumb video {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
         }
+
         .pk-video-overlay {
             position: absolute;
             inset: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(29,53,87,0.35);
+            background: rgba(29, 53, 87, 0.35);
             font-size: 2.5rem;
             color: white;
             opacity: 0.8;
             transition: opacity 0.2s;
         }
+
         .pk-video-card:hover .pk-video-overlay {
             opacity: 1;
         }
+
         .pk-video-info {
             padding: 0.85rem 1rem;
         }
+
         .pk-video-title {
             font-weight: 700;
             font-size: 0.9rem;
             color: #1D3557;
             margin-bottom: 0.25rem;
         }
+
         .pk-video-desc {
             font-size: 0.75rem;
             color: #64748B;
@@ -1419,27 +1528,30 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.88);
+            background: rgba(0, 0, 0, 0.88);
             z-index: 10000;
             align-items: center;
             justify-content: center;
             padding: 2rem;
         }
+
         .pk-lightbox.open {
             display: flex;
         }
+
         .pk-lightbox-img {
             max-width: 90vw;
             max-height: 85vh;
             object-fit: contain;
             border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
+
         .pk-lightbox-close {
             position: fixed;
             top: 1.5rem;
             right: 2rem;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             border: none;
             color: white;
             font-size: 2rem;
@@ -1450,15 +1562,17 @@
             line-height: 1;
             transition: background 0.2s;
         }
+
         .pk-lightbox-close:hover {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.3);
         }
+
         .pk-lightbox-caption {
             position: fixed;
             bottom: 2rem;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             color: white;
             padding: 0.6rem 1.5rem;
             border-radius: 30px;
@@ -1598,6 +1712,472 @@
             font-size: 0.8rem;
             font-weight: 700;
         }
+
+        /* ─── Venue Empowerment V6 ─────────────────────────────────────────────── */
+
+        .sunshine-section {
+            background: linear-gradient(180deg, #F0F4FF 0%, #FFFFFF 100%);
+        }
+
+        /* Venue Tabs */
+        .venue-showcase {
+            margin-bottom: 3.5rem;
+        }
+
+        .venue-tabs {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .venue-tab {
+            flex: 1;
+            min-width: 160px;
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            border: 2px solid #E2E8F0;
+            background: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.3s;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .venue-tab:hover {
+            border-color: var(--accent-gold);
+            transform: translateY(-2px);
+        }
+
+        .venue-tab.active {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(29, 53, 87, 0.25);
+        }
+
+        /* Venue Hero Card */
+        .venue-hero-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(29, 53, 87, 0.1);
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            min-height: 480px;
+        }
+
+        @media (max-width: 768px) {
+            .venue-hero-card {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .venue-hero-image {
+            position: relative;
+            background: #E2E8F0;
+            overflow: hidden;
+            min-height: 300px;
+        }
+
+        .venue-hero-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            inset: 0;
+        }
+
+        .venue-image-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #94A3B8;
+            background: linear-gradient(135deg, #E2E8F0, #CBD5E1);
+        }
+
+        .venue-hero-content {
+            padding: 2.5rem;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        .venue-title-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .venue-title-row h3 {
+            font-size: 1.6rem;
+            color: var(--primary-blue);
+            margin: 0;
+        }
+
+        .venue-badge {
+            background: rgba(29, 53, 87, 0.08);
+            color: var(--primary-blue);
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .venue-section {
+            margin-top: 1.5rem;
+        }
+
+        .venue-section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .venue-purpose-text {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            line-height: 1.8;
+            background: #F8F9FA;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-gold);
+        }
+
+        .venue-two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .venue-two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .venue-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .venue-list li {
+            font-size: 0.88rem;
+            color: var(--text-dark);
+            padding: 0.4rem 0;
+            padding-left: 1.2rem;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .venue-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent-gold);
+            font-weight: 900;
+        }
+
+        .venue-safety-list li::before {
+            color: var(--primary-red);
+        }
+
+        .venue-lesson-plan {
+            margin-top: 1.5rem;
+        }
+
+        .lesson-plan-box {
+            background: linear-gradient(135deg, #EFF6FF, #F0F9FF);
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            line-height: 1.9;
+            white-space: pre-wrap;
+            border: 1px solid #BFDBFE;
+        }
+
+        /* Auxiliary Venues Grid — Netflix Pop-out Style */
+        .aux-venues-section {
+            margin-top: 3rem;
+        }
+
+        .aux-title {
+            font-size: 1.2rem;
+            color: var(--primary-blue);
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        .aux-venues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .aux-venues-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .aux-venues-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* ── Dual-layer pop-out card ── */
+        .aux-card-wrapper {
+            position: relative;
+            height: 220px;
+            z-index: 1;
+        }
+
+        .aux-card-inner {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1;
+        }
+
+        .aux-img-box {
+            width: 100%;
+            height: 100%;
+            flex-shrink: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .aux-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .aux-text-panel {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            padding: 1.25rem 1.5rem;
+            opacity: 0;
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            transition: opacity 0.3s 0.15s;
+            overflow: hidden;
+        }
+
+        .aux-text-panel h4 {
+            margin: 0 0 0.6rem 0;
+            color: var(--primary-blue);
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .aux-desc {
+            font-size: 0.82rem;
+            color: #475569;
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+            flex: 1;
+        }
+
+        .aux-safety {
+            font-size: 0.75rem;
+            color: #E63946;
+            background: rgba(230, 57, 70, 0.07);
+            padding: 0.5rem 0.7rem;
+            border-radius: 6px;
+            line-height: 1.5;
+            border-left: 3px solid #E63946;
+        }
+
+        /* ── Netflix Hover Pop-out (desktop) ── */
+        @media (hover: hover) {
+            .aux-card-wrapper:hover {
+                z-index: 50;
+            }
+            .aux-card-wrapper:hover .aux-card-inner {
+                flex-direction: row;
+                width: 220%;
+                height: 300px;
+                top: -40px;
+                left: -10px;
+                box-shadow: 0 24px 48px rgba(0,0,0,0.18);
+            }
+            .aux-card-wrapper:hover .aux-img-box {
+                width: 42%;
+                height: 100%;
+            }
+            .aux-card-wrapper:hover .aux-img-box img {
+                transform: scale(1.05);
+            }
+            .aux-card-wrapper:hover .aux-text-panel {
+                display: flex;
+                width: 58%;
+                opacity: 1;
+            }
+        }
+
+        /* ── Mobile touch/click expansion ── */
+        .aux-card-wrapper.expanded .aux-card-inner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            max-width: 600px;
+            height: auto;
+            max-height: 80vh;
+            flex-direction: column;
+            z-index: 9999;
+            box-shadow: 0 32px 64px rgba(0,0,0,0.25);
+            overflow-y: auto;
+        }
+        .aux-card-wrapper.expanded .aux-img-box {
+            width: 100%;
+            height: 220px;
+        }
+        .aux-card-wrapper.expanded .aux-text-panel {
+            display: flex;
+            opacity: 1;
+            position: relative;
+        }
+        .aux-card-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 9998;
+        }
+        .aux-card-wrapper.expanded ~ .aux-card-overlay,
+        .aux-card-wrapper.expanded + .aux-card-overlay {
+            display: block;
+        }
+
+        /* Order & Routine Banner */
+        .order-banner {
+            margin-top: 3.5rem;
+            background: linear-gradient(135deg, #1D3557, #264653);
+            border-radius: 20px;
+            padding: 2.5rem;
+            color: white;
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+
+        @media (max-width: 768px) {
+            .order-banner {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+        }
+
+        .order-banner-icon {
+            font-size: 3.5rem;
+            flex-shrink: 0;
+        }
+
+        .order-banner-content {
+            flex: 1;
+        }
+
+        .order-banner-content h3 {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .order-rules {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .order-rules {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .order-rule-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border-left: 4px solid #F4A261;
+        }
+
+        .order-rule-item strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .order-rule-item p {
+            font-size: 0.88rem;
+            margin: 0;
+            opacity: 0.9;
+            line-height: 1.7;
+        }
+
+        /* Venue Portal Card (center card in Layer 2 grid) */
+        .venue-portal-card {
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .venue-portal-card:hover {
+            border-color: var(--primary-blue);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(29, 53, 87, 0.15);
+        }
+
+        .venue-portal-preview {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .venue-portal-item {
+            background: #EFF6FF;
+            border-radius: 10px;
+            padding: 0.6rem 0.9rem;
+            font-size: 0.88rem;
+            color: #1D3557;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .venue-portal-card:hover .venue-portal-item {
+            background: #DBEAFE;
+        }
+
+        /* ─── / Venue Empowerment V6 ───────────────────────────────────────────── */
 
         .tyndall-overlay {
             position: fixed;
@@ -2666,8 +3246,10 @@
             </a>
             <nav class="nav-links">
                 <a href="/" class="nav-link"><span class="nav-label">🏠 首页</span><span class="nav-en">Home</span></a>
-                <a href="/calendar.html" class="nav-link"><span class="nav-label">📅 校历</span><span class="nav-en">Calendar</span></a>
-                <a href="/admin" class="nav-link"><span class="nav-label">⚙️ 管理</span><span class="nav-en">Admin</span></a>
+                <a href="/calendar.html" class="nav-link"><span class="nav-label">📅 校历</span><span
+                        class="nav-en">Calendar</span></a>
+                <a href="/admin" class="nav-link"><span class="nav-label">⚙️ 管理</span><span
+                        class="nav-en">Admin</span></a>
             </nav>
         </div>
     </header>
@@ -2686,7 +3268,7 @@
                     "sweating" and "playing."</span>
             </p>
             <p class="hero-philosophy">
-                <span class="zh">更是体魄、运动与认知发展的黄金培育期。</span> <span class="en">It is a golden period for physical, motor,
+                <span class="zh">更是体魄、运动与认知的培养。</span> <span class="en">It is a golden period for physical, motor,
                     and cognitive development.</span>
             </p>
             <p class="hero-philosophy small">
@@ -2696,36 +3278,47 @@
                     activity.</span>
             </p>
             <div class="hero-stats">
+                <a href="#morning" class="stat">
+                    <span class="stat-number">15</span>
+                    <span class="stat-label">分钟晨间唤醒</span>
+                    <span class="stat-en">15 Mins Morning Parkour</span>
+                    <span class="stat-sub">
+                        <div class="card-footer">
+                            <span class="stat-tag">每日路线 · 教学视频</span>
+                            <span class="stat-tag-en">Daily Routes · Teaching Videos</span>
+                        </div>
+                    </span>
+                </a>
                 <a href="#curriculum" class="stat">
                     <span class="stat-number">38</span>
-                    <span class="stat-label">周完整课程</span>
+                    <span class="stat-label">周体育课程</span>
                     <span class="stat-en">38 Weeks of Curriculum</span>
                     <span class="stat-sub">
                         <div class="card-footer">
-                            <span class="stat-tag">攀岩 · 游泳 · 体能 · 晨练</span>
-                            <span class="stat-tag-en">Climb · Swim · Fitness · Morning PE</span>
+                            <span class="stat-tag">8项体测 · BMI追踪</span>
+                            <span class="stat-tag-en">8 Fitness Tests · BMI Tracking</span>
                         </div>
                     </span>
                 </a>
-                <a href="#abilities" class="stat">
-                    <span class="stat-number">4</span>
-                    <span class="stat-label">大核心模块</span>
-                    <span class="stat-en">4 Core Ability Modules</span>
+                <a href="#sunshine" class="stat">
+                    <span class="stat-number">10<span style="font-size:0.55em;">+</span></span>
+                    <span class="stat-label">全能运动空间</span>
+                    <span class="stat-en">10+ Sports Venues</span>
                     <span class="stat-sub">
                         <div class="card-footer">
-                            <span class="stat-tag">运动 · 探索 · 挑战 · 发展</span>
-                            <span class="stat-tag-en">Play · Explore · Challenge · Develop</span>
+                            <span class="stat-tag">大操场 · 室内馆 · 游乐场</span>
+                            <span class="stat-tag-en">Playground · Gymnasium · Sensory Room</span>
                         </div>
                     </span>
                 </a>
-                <a href="#data" class="stat">
-                    <span class="stat-number">8</span>
-                    <span class="stat-label">项核心运动测试</span>
-                    <span class="stat-en">8 Core Motor Test Indicators</span>
+                <a href="#clubs" class="stat">
+                    <span class="stat-number">20<span style="font-size:0.55em;">+</span></span>
+                    <span class="stat-label">精英俱乐部</span>
+                    <span class="stat-en">20+ Elite Clubs</span>
                     <span class="stat-sub">
                         <div class="card-footer">
-                            <span class="stat-tag">平衡 · 爆发 · 敏捷 · 操控</span>
-                            <span class="stat-tag-en">Balance · Power · Agility · Control</span>
+                            <span class="stat-tag">跨学科 · 多元潜能</span>
+                            <span class="stat-tag-en">Cross-Disciplinary · Multi-Potential</span>
                         </div>
                     </span>
                 </a>
@@ -3582,17 +4175,22 @@
 
             <!-- Parkour Video Tutorial Grid -->
             <div id="parkourVideoSection" style="display:none;margin-top:4rem;">
-                <h4 style="font-size:1.15rem;font-weight:800;color:#1D3557;margin:0 0 1.25rem;display:flex;align-items:center;gap:0.5rem;">
+                <h4
+                    style="font-size:1.15rem;font-weight:800;color:#1D3557;margin:0 0 1.25rem;display:flex;align-items:center;gap:0.5rem;">
                     📺 跑酷核心动作教学库
-                    <span class="en" style="font-size:0.65em;font-weight:400;color:var(--text-muted);">| Parkour Movement Tutorials</span>
+                    <span class="en" style="font-size:0.65em;font-weight:400;color:var(--text-muted);">| Parkour
+                        Movement Tutorials</span>
                 </h4>
-                <div id="pkVideoGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;"></div>
+                <div id="pkVideoGrid"
+                    style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;"></div>
             </div>
         </div>
     </section>
-    <!-- Sunshine Section -->
+    <!-- Sunshine Section — Outdoor Activities + Venue Empowerment V6 -->
     <section class="sunshine-section" id="sunshine">
         <div class="container">
+
+            <!-- Layer 0: Section Header (shared) -->
             <div class="section-header fade-in-up">
                 <span class="section-tag">☀️ <span class="zh">户外活动</span> <span class="en">| Outdoor
                         Activities</span></span>
@@ -3602,6 +4200,7 @@
                         activity sessions daily — letting children release their nature in the great outdoors</span></p>
             </div>
 
+            <!-- Layer 1: Outdoor Activity Tracker -->
             <div class="sun-tracker fade-in-up">
                 <h3 class="sun-tracker-title">
                     <span class="zh">🌞 全天候户外活动追踪 — 点击体验</span><br>
@@ -3625,7 +4224,10 @@
                 </div>
             </div>
 
+            <!-- Layer 2: 3-Column Grid -->
             <div class="sunshine-grid">
+
+                <!-- Card 1: Precision Timeline (left) -->
                 <div class="sunshine-card fade-in-up">
                     <div class="sunshine-card-header">
                         <div class="sunshine-icon">📢</div>
@@ -3644,31 +4246,27 @@
                     <p style="margin-top:0.5rem;"><span class="en">Step outside to the spacious playground, run freely,
                             breathe deeply, and bask in the sunshine.</span></p>
                 </div>
-                <div class="sunshine-card fade-in-up">
+
+                <!-- Card 2: Venue Empowerment Portal (center — replaces Scientific Support) -->
+                <div class="sunshine-card venue-portal-card fade-in-up" onclick="scrollToVenueShowcase()">
                     <div class="sunshine-card-header">
-                        <div class="sunshine-icon">🔬</div>
+                        <div class="sunshine-icon">🏫</div>
                         <div>
-                            <h4><span class="zh">科学支撑</span></h4>
-                            <span class="en">Scientific Foundation</span>
+                            <h4><span class="zh">全能场地赋能入口</span></h4>
+                            <span class="en">Venue Empowerment Hub</span>
                         </div>
                     </div>
-                    <p>
-                        <strong>
-                            <span class="zh">☀️ 多巴胺/褪黑素循环</span><br>
-                            <span class="en">Dopamine/Melatonin Cycle</span>
-                        </strong><br>
-                        <span class="en">Full-spectrum sunlight stimulates dopamine release through retina — prevents
-                            myopia; converts to melatonin at night for better sleep.</span>
-                    </p>
-                    <p style="margin-top:1rem;">
-                        <strong>
-                            <span class="zh">🧠 告别昏睡</span><br>
-                            <span class="en">Default Mode Network</span>
-                        </strong><br>
-                        <span class="en">Unstructured play lets the brain "clear cache," eliminate cognitive fatigue &
-                            restore focus.</span>
-                    </p>
+                    <div class="venue-portal-preview">
+                        <div class="venue-portal-item">🌳 <span class="zh">室外大操场</span></div>
+                        <div class="venue-portal-item">🧠 <span class="zh">室内感统教室</span></div>
+                        <div class="venue-portal-item">🏀 <span class="zh">综合体育馆</span></div>
+                    </div>
+                    <p style="margin-top:1rem;font-size:0.88rem;"><span class="zh">点击进入三大核心场地的详细教案、安全须知与周排期 →</span></p>
+                    <p style="margin-top:0.3rem;font-size:0.82rem;color:#6C757D;"><span class="en">Tap to explore core
+                            venue lesson plans, safety guidelines & weekly schedules →</span></p>
                 </div>
+
+                <!-- Card 3: Unstructured Play (right) -->
                 <div class="sunshine-card fade-in-up">
                     <div class="sunshine-card-header">
                         <div class="sunshine-icon">🧒</div>
@@ -3690,6 +4288,92 @@
                     </p>
                 </div>
             </div>
+
+            <!-- Layer 3: Core Venue Showcase (seamlessly below grid) -->
+            <div class="venue-showcase fade-in-up">
+                <div class="venue-tabs">
+                    <button class="venue-tab active" onclick="switchVenue(0)" id="venueTab0">
+                        <span class="zh">室外大操场</span><br><span class="en">Outdoor Playground</span>
+                    </button>
+                    <button class="venue-tab" onclick="switchVenue(1)" id="venueTab1">
+                        <span class="zh">室内感统教室</span><br><span class="en">Sensory Gym</span>
+                    </button>
+                    <button class="venue-tab" onclick="switchVenue(2)" id="venueTab2">
+                        <span class="zh">综合体育馆</span><br><span class="en">Gymnasium</span>
+                    </button>
+                </div>
+
+                <!-- Core Venue Hero Card -->
+                <div class="venue-hero-card" id="venueHeroCard">
+                    <div class="venue-hero-image" id="venueHeroImage">
+                        <img src="" alt="" id="venueMainImage" style="display:none;">
+                        <div class="venue-image-placeholder" id="venueImagePlaceholder">
+                            <span class="zh">场地图片加载中…</span>
+                        </div>
+                    </div>
+                    <div class="venue-hero-content">
+                        <div class="venue-title-row">
+                            <h3 id="venueTitle"><span class="zh">室外大操场</span></h3>
+                            <span class="venue-badge" id="venueBadge">☀️ <span class="zh">核心场地</span></span>
+                        </div>
+                        <p class="venue-title-en" id="venueTitleEn"
+                            style="font-size:0.85em;color:#6C757D;margin-bottom:1.25rem;">Outdoor Playground</p>
+
+                        <div class="venue-section">
+                            <h4 class="venue-section-title">🎯 <span class="zh">场地赋能</span> <span
+                                    class="en">Purpose</span></h4>
+                            <p id="venuePurpose" class="venue-purpose-text"></p>
+                        </div>
+
+                        <div class="venue-two-col">
+                            <div class="venue-section">
+                                <h4 class="venue-section-title">🎮 <span class="zh">推荐玩法</span> <span class="en">Play
+                                        Guide</span></h4>
+                                <ul class="venue-list" id="venueGames"></ul>
+                            </div>
+                            <div class="venue-section">
+                                <h4 class="venue-section-title">⚠️ <span class="zh">安全提示</span> <span
+                                        class="en">Safety</span></h4>
+                                <ul class="venue-list venue-safety-list" id="venueSafety"></ul>
+                            </div>
+                        </div>
+
+                        <div class="venue-section venue-lesson-plan" id="venueLessonPlanSection">
+                            <h4 class="venue-section-title">📅 <span class="zh">本周教案与排期</span> <span class="en">Lesson
+                                    Plan</span></h4>
+                            <div class="lesson-plan-box" id="venueLessonPlan"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auxiliary Venues Grid -->
+            <div class="aux-venues-section fade-in-up">
+                <h3 class="aux-title">
+                    <span class="zh">🗺️ 多元探索空间索引</span><br>
+                    <span class="en" style="font-size:0.7em;font-weight:400;">Auxiliary Venue Explorer</span>
+                </h3>
+                <div class="aux-venues-grid" id="auxVenuesGrid"></div>
+            </div>
+
+            <!-- Layer 4: Order & Routine Banner -->
+            <div class="order-banner fade-in-up" id="orderBanner">
+                <div class="order-banner-icon">🛑</div>
+                <div class="order-banner-content">
+                    <h3><span class="zh">户外结束归位指南</span> <span class="en">Outdoor Equipment Return Guide</span></h3>
+                    <div class="order-rules">
+                        <div class="order-rule-item" id="bikeParkingRule">
+                            <strong>🚲 <span class="zh">小黄车摆放规范</span></strong>
+                            <p id="bikeParkingText"></p>
+                        </div>
+                        <div class="order-rule-item" id="equipmentReturnRule">
+                            <strong>📦 <span class="zh">器材归还规范</span></strong>
+                            <p id="equipmentReturnText"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 
@@ -3915,7 +4599,176 @@
         }, { threshold: 0.1 });
         document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
 
-        // Sunshine Tracker
+        // ─── Venue Empowerment V6 ────────────────────────────────────────────────
+        let venuesData = { coreVenues: [], auxVenues: [], rules: {} };
+        let currentVenueIndex = 0;
+
+        async function loadVenuesData() {
+            try {
+                const res = await fetch('/api/venues?t=' + Date.now());
+                const json = await res.json();
+                if (json.success) {
+                    venuesData = json.data;
+                    renderVenueTabs();
+                    renderCoreVenue(0);
+                    renderAuxVenues();
+                    renderOrderBanner();
+                }
+            } catch (err) {
+                console.error('Failed to load venues:', err);
+            }
+        }
+
+        function renderVenueTabs() {
+            const tabs = document.querySelectorAll('.venue-tab');
+            if (!tabs.length) return;
+            venuesData.coreVenues.forEach((v, i) => {
+                if (tabs[i]) {
+                    tabs[i].querySelector('.zh') && (tabs[i].querySelector('.zh').textContent = v.name);
+                    const enSpan = tabs[i].querySelector('.en');
+                    if (enSpan) enSpan.textContent = v.nameEn || '';
+                }
+            });
+        }
+
+        function switchVenue(index) {
+            currentVenueIndex = index;
+            document.querySelectorAll('.venue-tab').forEach((t, i) => {
+                t.classList.toggle('active', i === index);
+            });
+            renderCoreVenue(index);
+        }
+
+        function renderCoreVenue(index) {
+            const v = venuesData.coreVenues[index];
+            if (!v) return;
+
+            const titleEl = document.getElementById('venueTitle');
+            const titleEnEl = document.getElementById('venueTitleEn');
+            const purposeEl = document.getElementById('venuePurpose');
+            const gamesEl = document.getElementById('venueGames');
+            const safetyEl = document.getElementById('venueSafety');
+            const lessonEl = document.getElementById('venueLessonPlan');
+            const mainImg = document.getElementById('venueMainImage');
+            const placeholder = document.getElementById('venueImagePlaceholder');
+
+            titleEl.innerHTML = `<span class="zh">${v.name}</span>`;
+            titleEnEl.textContent = v.nameEn || '';
+            purposeEl.textContent = v.purpose || '';
+
+            // Image
+            if (v.image) {
+                mainImg.src = v.image;
+                mainImg.style.display = 'block';
+                placeholder.style.display = 'none';
+                mainImg.onerror = () => {
+                    mainImg.style.display = 'none';
+                    placeholder.style.display = 'flex';
+                    placeholder.innerHTML = '<span class="zh">📷 暂无图片</span>';
+                };
+            } else {
+                mainImg.style.display = 'none';
+                placeholder.style.display = 'flex';
+                placeholder.innerHTML = '<span class="zh">📷 暂无图片</span>';
+            }
+
+            // Games list
+            gamesEl.innerHTML = '';
+            if (v.games) {
+                v.games.split('、').forEach(g => {
+                    const li = document.createElement('li');
+                    li.textContent = g.trim();
+                    gamesEl.appendChild(li);
+                });
+            }
+
+            // Safety list
+            safetyEl.innerHTML = '';
+            if (v.safety) {
+                v.safety.split('；').forEach(s => {
+                    const li = document.createElement('li');
+                    li.textContent = s.trim();
+                    safetyEl.appendChild(li);
+                });
+            }
+
+            // Lesson plan
+            lessonEl.textContent = v.lessonPlan || '本周教案内容待更新。';
+        }
+
+        function renderAuxVenues() {
+            const grid = document.getElementById('auxVenuesGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            venuesData.auxVenues.forEach(v => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'aux-card-wrapper';
+                wrapper.dataset.id = v.id;
+
+                const hasImg = v.image && v.image.trim();
+                const desc = v.description || '';
+                const safety = v.safety || '';
+
+                wrapper.innerHTML = `
+                    <div class="aux-card-inner">
+                        <div class="aux-img-box">
+                            ${hasImg
+                                ? `<img src="${v.image}" alt="${v.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                   <div class="aux-venue-placeholder" style="display:none;width:100%;height:100%;background:linear-gradient(135deg,#E2E8F0,#CBD5E1);align-items:center;justify-content:center;font-size:2rem;display:flex;">🏞️</div>`
+                                : `<div class="aux-venue-placeholder" style="width:100%;height:100%;background:linear-gradient(135deg,#E2E8F0,#CBD5E1);display:flex;align-items:center;justify-content:center;font-size:2rem;">🏞️</div>`
+                            }
+                        </div>
+                        <div class="aux-text-panel">
+                            <h4>${v.name}</h4>
+                            ${desc ? `<p class="aux-desc">${desc}</p>` : ''}
+                            ${safety ? `<p class="aux-safety">⚠️ ${safety}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+
+                // Mobile click/touch expansion
+                wrapper.addEventListener('click', function(e) {
+                    // Only on touch devices or non-hover devices
+                    if (window.matchMedia('(hover: none)').matches || 'ontouchstart' in window) {
+                        e.stopPropagation();
+                        // Close any other expanded card
+                        document.querySelectorAll('.aux-card-wrapper.expanded').forEach(el => {
+                            if (el !== wrapper) el.classList.remove('expanded');
+                        });
+                        wrapper.classList.toggle('expanded');
+                    }
+                });
+
+                grid.appendChild(wrapper);
+            });
+
+            // Global click to close expanded cards
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.aux-card-wrapper')) {
+                    document.querySelectorAll('.aux-card-wrapper.expanded').forEach(el => {
+                        el.classList.remove('expanded');
+                    });
+                }
+            });
+        }
+
+        function renderOrderBanner() {
+            const bpText = document.getElementById('bikeParkingText');
+            const erText = document.getElementById('equipmentReturnText');
+            if (bpText) bpText.textContent = venuesData.rules?.bikeParking || '';
+            if (erText) erText.textContent = venuesData.rules?.equipmentReturn || '';
+        }
+
+        function scrollToVenueShowcase() {
+            document.getElementById('venueHeroCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Init venues on page load
+        loadVenuesData();
+
+        // ─── / Venue Empowerment V6 ───────────────────────────────────────────────
+
+        // Sunshine Tracker (legacy — kept for compatibility)
         function triggerSunshine(el, className, time) {
             document.querySelectorAll('.sun-slot').forEach(s => s.classList.remove('active'));
             el.classList.add('active');
@@ -4881,21 +5734,35 @@
 
     <!-- ─── Navigation active-route auto-detection ─────────────────────────────── -->
     <script>
-    (function activateNavLink() {
-        var path = window.location.pathname;
-        var navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(function(link) {
-            link.classList.remove('active');
-            var href = link.getAttribute('href');
-            if (href === '/') {
-                if (path === '/' || path === '/index.html' || path === '/index.htm') {
+        (function activateNavLink() {
+            var path = window.location.pathname;
+            var navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(function (link) {
+                link.classList.remove('active');
+                var href = link.getAttribute('href');
+                if (href === '/') {
+                    if (path === '/' || path === '/index.html' || path === '/index.htm') {
+                        link.classList.add('active');
+                    }
+                } else if (href && path.includes(href.replace(/^\//, ''))) {
                     link.classList.add('active');
                 }
-            } else if (href && path.includes(href.replace(/^\//, ''))) {
-                link.classList.add('active');
-            }
+            });
+        })();
+    </script>
+
+    <!-- ─── Smooth scroll for hero stat cards ─────────────────────────────────── -->
+    <script>
+        document.querySelectorAll('.hero-stats a[href^="#"]').forEach(function(card) {
+            card.addEventListener('click', function(e) {
+                e.preventDefault();
+                var targetId = this.getAttribute('href');
+                var targetEl = document.querySelector(targetId);
+                if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
         });
-    })();
     </script>
 
     <!-- Parkour Lightbox (reused for images + videos) -->
