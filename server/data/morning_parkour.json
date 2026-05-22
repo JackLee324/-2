@@ -6,7 +6,7 @@
     "teacher": "Coach David",
     "trackName": "🌴 丛林大探险",
     "safetyNotes": "✅ 全程需穿运动鞋，禁止赤脚跑动\n✅ 跳过轮胎时须目视前方，双手张开保持平衡\n⚠️ 穿越平衡木区域时禁止推挤前方同伴\n⚠️ 如感眩晕请立即举手示意老师",
-    "imagePath": "/assets/parkour/pk001_jungle.jpg",
+    "imagePath": "/assets/parkour/1779337854731.jpg",
     "isFeatured": false
   },
   {
@@ -16,7 +16,7 @@
     "teacher": "Henry",
     "trackName": "🏰 超级赛道穿越",
     "safetyNotes": "✅ 跳箱高度仅为15cm，落地时屈膝缓冲\n✅ 钻爬筒内禁止倒退，须全程正向爬行\n⚠️ 锥桶绕障时严格走外侧通道，禁止穿越内侧\n⚠️ 每组完成后在安全区等待，不得单独行动",
-    "imagePath": "/assets/parkour/1779073062647.jpg",
+    "imagePath": "/assets/parkour/1779408469389.jpg",
     "isFeatured": true
   },
   {
@@ -26,7 +26,7 @@
     "teacher": "Coach Lisa",
     "trackName": "🚀 太空探索之旅",
     "safetyNotes": "✅ 出发前检查鞋带是否系紧\n✅ 环岛跑道仅限单向逆时针行进\n⚠️ 跳跃垫区域最大同玩人数为3人，超员须等候\n⚠️ 感到体力不支时，在最近的安全点举手暂停",
-    "imagePath": "/assets/parkour/pk003_space.jpg",
+    "imagePath": "/assets/parkour/1779408488185.jpg",
     "isFeatured": false
   }
 ]

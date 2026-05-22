@@ -1432,31 +1432,42 @@
             word-break: break-word;
         }
 
-        .pk-map-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 5px 12px;
-            background: #2A9D8F;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
+        .map-thumbnail {
+            width: 80px;
+            height: 54px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             cursor: pointer;
-            transition: background 0.2s, transform 0.15s;
+            display: block;
+            margin: 0 auto;
         }
 
-        .pk-map-btn:hover {
-            background: #20786C;
+        .map-thumbnail:hover {
             transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
         }
 
-        .pk-map-btn-disabled {
-            background: #E2E8F0 !important;
-            color: #94A3B8 !important;
-            cursor: not-allowed !important;
-            transform: none !important;
+        .map-thumbnail-placeholder {
+            width: 80px;
+            height: 54px;
+            margin: 0 auto;
+            background: #F1F5F9;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94A3B8;
+            font-size: 0.65rem;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .map-placeholder-sub {
+            font-size: 0.55rem;
+            color: #CBD5E1;
         }
 
         /* Parkour Video Tutorial Cards */
@@ -1539,12 +1550,24 @@
             display: flex;
         }
 
+        .pk-lightbox.zoomed {
+            overflow: auto;
+        }
+
         .pk-lightbox-img {
             max-width: 90vw;
             max-height: 85vh;
             object-fit: contain;
             border-radius: 16px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            cursor: zoom-in;
+            transition: transform 0.3s ease, max-width 0.3s ease, max-height 0.3s ease;
+        }
+
+        .pk-lightbox-img.zoomed {
+            max-width: none;
+            max-height: none;
+            cursor: zoom-out;
         }
 
         .pk-lightbox-close {
@@ -3238,7 +3261,31 @@
 
 <body>
 
-    <!-- Header -->
+    <!-- ═══ Splash Screen: Particle Logo Animation ═══ -->
+    <style>
+    #splash-canvas{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;cursor:pointer;}
+    #splash-white{position:fixed;top:0;left:0;width:100vw;height:100vh;background:#fff;z-index:9998;pointer-events:none;opacity:1;transition:opacity 1.5s ease;}
+    #splash-white.fade-out{opacity:0;pointer-events:none;}
+    #click-hint{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#bbb;letter-spacing:2px;z-index:10001;pointer-events:none;animation:pulse-hint 2s ease-in-out infinite;}
+    @keyframes pulse-hint{0%,100%{opacity:0.4}50%{opacity:1}}
+    </style>
+
+    <!-- Splash Canvas (full-screen white + particles) -->
+    <canvas id="splash-canvas"></canvas>
+
+    <!-- Hidden logo source for pixel extraction -->
+    <div style="position:absolute;left:-9999px;top:-9999px;width:528px;height:280px;overflow:hidden;pointer-events:none;">
+      <img id="logo-src" src="logo.png" style="width:528px;height:280px;opacity:0;" crossorigin="anonymous">
+      <canvas id="logo-canvas" width="528" height="280" style="width:528px;height:280px;"></canvas>
+    </div>
+
+    <!-- White overlay to reveal home page -->
+    <div id="splash-white"></div>
+
+    <!-- Click hint -->
+    <div id="click-hint">点击任意处触发聚徽</div>
+
+    <!-- ═══ End Splash ═══ -->
     <header class="main-header">
         <div class="header-container">
             <a href="#" class="logo-link" onclick="event.preventDefault(); window.scrollTo({top:0,behavior:'smooth'})">
@@ -3257,7 +3304,15 @@
         <span class="lightbox-close" onclick="closeLightbox()">×</span>
         <img id="lightboxImg" src="" alt="">
         <video id="lightboxVideo" src="" controls muted loop playsinline
-            style="display:none;max-width:90%;max-height:90%;border-radius:16px;"></video>
+            style="display:none;"></video>
+    </div>
+
+    <!-- Parkour Lightbox: full-screen image/video preview -->
+    <div class="pk-lightbox" id="pkLightbox" onclick="if(event.target===this)closePkLightbox()">
+        <button class="pk-lightbox-close" onclick="closePkLightbox()">×</button>
+        <img id="pkLightboxImg" class="pk-lightbox-img" src="" alt="" style="display:none;" onclick="togglePkLightboxZoom(event)">
+        <video id="pkLightboxVideo" class="pk-lightbox-img" src="" controls playsinline style="display:none;"></video>
+        <div class="pk-lightbox-caption" id="pkLightboxCaption"></div>
     </div>
 
     <!-- Hero -->
@@ -5556,20 +5611,34 @@
         function openParkourMap(imagePath, caption) {
             const lb = document.getElementById('pkLightbox');
             const img = document.getElementById('pkLightboxImg');
+            const vid = document.getElementById('pkLightboxVideo');
             const cap = document.getElementById('pkLightboxCaption');
             if (!lb || !img) return;
+            img.style.display = '';
+            img.classList.remove('zoomed');
+            lb.classList.remove('zoomed');
+            if (vid) vid.style.display = 'none';
             img.src = imagePath;
             if (cap) cap.textContent = caption || '';
             lb.classList.add('open');
             document.body.style.overflow = 'hidden';
         }
 
+        function togglePkLightboxZoom(e) {
+            e.stopPropagation();
+            const lb = document.getElementById('pkLightbox');
+            const img = document.getElementById('pkLightboxImg');
+            if (!lb || !img) return;
+            lb.classList.toggle('zoomed');
+            img.classList.toggle('zoomed');
+        }
+
         function closePkLightbox() {
             const lb = document.getElementById('pkLightbox');
             const img = document.getElementById('pkLightboxImg');
             const vid = document.getElementById('pkLightboxVideo');
-            if (lb) lb.classList.remove('open');
-            if (img) { img.src = ''; img.style.display = 'none'; }
+            if (lb) { lb.classList.remove('open'); lb.classList.remove('zoomed'); }
+            if (img) { img.src = ''; img.style.display = 'none'; img.classList.remove('zoomed'); }
             if (vid) { vid.src = ''; vid.style.display = 'none'; }
             document.body.style.overflow = '';
         }
@@ -5652,11 +5721,11 @@
                 schedule.style.display = 'block';
                 const rowsHtml = parkourRows.map(row => {
                     const safetyLine = (row.safetyNotes || '').split('\n').filter(l => l.trim()).slice(0, 2).join(' | ').substring(0, 80);
-                    let mapBtn;
+                    let mapCell;
                     if (row.imagePath) {
-                        mapBtn = `<button class="pk-map-btn" onclick="openParkourMap('${escapeHtml(row.imagePath)}', '${escapeHtml(row.trackName || '')}')">🗺️ 查看地图</button>`;
+                        mapCell = `<img class="map-thumbnail" src="${escapeHtml(row.imagePath)}?t=${Date.now()}" alt="${escapeHtml(row.trackName || '')}" onclick="openParkourMap('${escapeHtml(row.imagePath)}', '${escapeHtml(row.trackName || '')}')" loading="lazy">`;
                     } else {
-                        mapBtn = `<button class="pk-map-btn pk-map-btn-disabled" disabled style="background:#E2E8F0;color:#94A3B8;cursor:not-allowed;border:none;padding:0.4rem 0.8rem;border-radius:8px;font-size:0.8rem;font-weight:600;">📋 地图待更新</button>`;
+                        mapCell = `<div class="map-thumbnail-placeholder">暂无地图<span class="map-placeholder-sub">No Map</span></div>`;
                     }
                     return `<tr>
                         <td class="pk-week"><span>${escapeHtml(row.week || '')}</span></td>
@@ -5666,7 +5735,7 @@
                         </td>
                         <td class="pk-track">${escapeHtml(row.trackName || '')}</td>
                         <td class="pk-safety" style="white-space:pre-wrap;word-break:break-word;line-height:1.6;">${escapeHtml(safetyLine)}</td>
-                        <td style="text-align:center;">${mapBtn}</td>
+                        <td style="text-align:center;">${mapCell}</td>
                     </tr>`;
                 }).join('');
                 schedule.innerHTML = `
@@ -5765,13 +5834,260 @@
         });
     </script>
 
-    <!-- Parkour Lightbox (reused for images + videos) -->
-    <div id="pkLightbox" class="pk-lightbox" onclick="if(event.target===this)closePkLightbox()">
-        <button class="pk-lightbox-close" onclick="closePkLightbox()">×</button>
-        <img id="pkLightboxImg" class="pk-lightbox-img" src="" alt="跑道图" style="display:none;">
-        <video id="pkLightboxVideo" class="pk-lightbox-img" src="" controls style="display:none;"></video>
-        <div id="pkLightboxCaption" class="pk-lightbox-caption"></div>
-    </div>
-</body>
+    <!-- ═══ Splash Particle Animation (V3: Pure Particle Badge) ═══ -->
+    <script>
+    !function(){'use strict';
+    // ─── Config ─────────────────────────────────────────────────────────
+    var PARTICLE_COUNT   = 5000;
+    var LOGO_W = 528, LOGO_H = 280;
+    var SAMPLE_STEP      = 1;
+    var MOUSE_RADIUS     = 160;
+    var MOUSE_FORCE      = 0.85;
+    var FRICTION          = 0.92;
+    var NOISE_SCALE       = 0.003;
+    var NOISE_STRENGTH    = 0.30;
+    var AGGREGATE_MS      = 3500;
+    var SETTLE_MS         = 800;
+    var STAGGER_SPREAD    = 0.12;
+    var AUTO_TRIGGER_MS   = 7000;
 
+    // ─── Canvas ─────────────────────────────────────────────────────────
+    var canvas=document.getElementById('splash-canvas');
+    var ctx=canvas.getContext('2d');
+    var W=canvas.width=window.innerWidth;
+    var H=canvas.height=window.innerHeight;
+
+    // ─── State ──────────────────────────────────────────────────────────
+    var anchors=[], targets=[], particles=[];
+    var mouseX=-9999,mouseY=-9999,mouseActive=true;
+    var phase='flow',aggregateStart=0,settleStart=0,fadeStart=0;
+    var noiseOffset=0,ready=false;
+    var hintEl=document.getElementById('click-hint');
+
+    // ─── Noise ──────────────────────────────────────────────────────────
+    function hash(n){n=Math.sin(n)*43758.5453123;return n-Math.floor(n);}
+    function lerp(a,b,t){return a+(b-a)*t;}
+    function noise2(x,y){
+      var ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy;
+      var ux=fx*fx*(3-2*fx),uy=fy*fy*(3-2*fy);
+      return lerp(lerp(hash(ix+iy*57),hash(ix+1+iy*57),ux),lerp(hash(ix+(iy+1)*57),hash(ix+1+(iy+1)*57),ux),uy);
+    }
+
+    // ─── Easing ─────────────────────────────────────────────────────────
+    function easeOutCubic(t){return 1-Math.pow(1-t,3);}
+    function easeInOutCubic(t){return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
+    function easeOutBack(t){var c1=1.70158;var c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2);}
+    function easeOutElastic(t){if(t===0||t===1)return t;return Math.pow(2,-10*t)*Math.sin((t*10-0.75)*(2*Math.PI)/3)+1;}
+
+    // ─── Pixel Sampling (step=1, direct per-pixel color) ────────────────
+    function sampleLogoPixels(){
+      var logoCanvas=document.getElementById('logo-canvas');
+      var logoCtx=logoCanvas.getContext('2d');
+      var img=document.getElementById('logo-src');
+      return new Promise(function(resolve){
+        function doSample(){
+          logoCtx.clearRect(0,0,LOGO_W,LOGO_H);
+          logoCtx.drawImage(img,0,0,LOGO_W,LOGO_H);
+          var imgData=logoCtx.getImageData(0,0,LOGO_W,LOGO_H);
+          var data=imgData.data;
+          var result=[];
+          for(var y=0;y<LOGO_H;y+=SAMPLE_STEP){
+            for(var x=0;x<LOGO_W;x+=SAMPLE_STEP){
+              var idx=(y*LOGO_W+x)*4;
+              var a=data[idx+3];
+              if(a<=80)continue;
+              var r=data[idx],g=data[idx+1],b=data[idx+2];
+              var brightness=(r+g+b)/3;
+              if(brightness<15)continue;
+              result.push({sx:x,sy:y,sr:r,sg:g,sb:b});
+            }
+          }
+          resolve(result);
+        }
+        if(img.complete&&img.naturalWidth>0)doSample();
+        else{img.onload=doSample;img.onerror=function(){resolve([]);};}
+      });
+    }
+
+    // ─── Target Computation ─────────────────────────────────────────────
+    function computeTargets(){
+      var scaleX=W/LOGO_W,scaleY=H/LOGO_H;
+      var scale=Math.min(scaleX,scaleY)*0.85;
+      var tx=(W-LOGO_W*scale)/2,ty=(H-LOGO_H*scale)/2;
+      targets=anchors.map(function(a){return{tx:a.sx*scale+tx,ty:a.sy*scale+ty};});
+    }
+
+    // ─── Particle ───────────────────────────────────────────────────────
+    function Particle(idx,total){
+      this.idx=idx;
+      this.x=Math.random()*W;this.y=Math.random()*H;
+      this.vx=(Math.random()-0.5)*2;this.vy=(Math.random()-0.5)*2;
+      this.size=2.0+Math.random()*2.0;
+      this.alpha=0.4+Math.random()*0.5;
+      this.tx=this.x;this.ty=this.y;
+      this.tr=200;this.tg=200;this.tb=200;
+    }
+    Particle.prototype.setTarget=function(tx,ty,r,g,b){
+      this.tx=tx;this.ty=ty;this.tr=r;this.tg=g;this.tb=b;
+    };
+    Particle.prototype.updateFlow=function(dt){
+      if(phase!=='flow')return;
+      var n=noise2(this.x*NOISE_SCALE+noiseOffset,this.y*NOISE_SCALE+noiseOffset);
+      var angle=n*Math.PI*4+noiseOffset*2;
+      this.vx+=Math.cos(angle)*NOISE_STRENGTH*dt;
+      this.vy+=Math.sin(angle)*NOISE_STRENGTH*dt;
+      if(mouseActive&&mouseX>-900){
+        var dx=this.x-mouseX,dy=this.y-mouseY;
+        var dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<MOUSE_RADIUS&&dist>1){
+          var force=(MOUSE_RADIUS-dist)/MOUSE_RADIUS*MOUSE_FORCE;
+          var ang=Math.atan2(dy,dx),tang=ang+Math.PI/2;
+          this.vx+=Math.cos(ang)*force*1.2;this.vy+=Math.sin(ang)*force*1.2;
+          this.vx+=Math.cos(tang)*force*0.4;this.vy+=Math.sin(tang)*force*0.4;
+        }
+      }
+      this.vx*=FRICTION;this.vy*=FRICTION;
+      this.x+=this.vx;this.y+=this.vy;
+      var pad=30;
+      if(this.x<pad)this.vx+=0.6;if(this.x>W-pad)this.vx-=0.6;
+      if(this.y<pad)this.vy+=0.6;if(this.y>H-pad)this.vy-=0.6;
+      this.x=Math.max(0,Math.min(W,this.x));
+      this.y=Math.max(0,Math.min(H,this.y));
+    };
+    Particle.prototype.updateAggregate=function(dt,progress){
+      if(phase!=='aggregate'&&phase!=='settle')return;
+      var stagger=(this.idx/particles.length)*STAGGER_SPREAD;
+      var tp=Math.min(1,Math.max(0,(progress-stagger)/(1-stagger)));
+      if(phase==='aggregate'){
+        var k=0.08+(1-tp)*0.04;
+        this.x+=(this.tx-this.x)*k*dt;
+        this.y+=(this.ty-this.y)*k*dt;
+        this.alpha=0.4+tp*0.55;
+        this.size=2.0+tp*0.8;
+      }else if(phase==='settle'){
+        this.x+=(this.tx-this.x)*0.3;
+        this.y+=(this.ty-this.y)*0.3;
+        this.alpha=0.95;this.size=2.8;
+      }
+    };
+    Particle.prototype.draw=function(){
+      ctx.beginPath();
+      ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+      ctx.fillStyle='rgba('+this.tr+','+this.tg+','+this.tb+','+this.alpha+')';
+      ctx.fill();
+    };
+
+    // ─── Assign Targets (random shuffle, exact color per anchor) ────────
+    function assignTargets(){
+      var count=Math.min(particles.length,anchors.length);
+      var indices=[];for(var i=0;i<anchors.length;i++)indices.push(i);
+      indices.sort(function(){return Math.random()-0.5;});
+      for(var i=0;i<count;i++){
+        var p=particles[i],ai=indices[i],a=anchors[ai],t=targets[ai];
+        p.setTarget(t.tx,t.ty,a.sr,a.sg,a.sb);
+      }
+    }
+
+    // ─── Fallback (if logo.png fails to load) ───────────────────────────
+    function createFallbackAnchors(){
+      anchors=[];
+      var fc=[{r:220,g:30,b:60},{r:26,g:53,b:87},{r:42,g:157,b:143},{r:245,g:158,b:11},{r:138,g:43,b:226},{r:255,g:165,b:0}];
+      for(var y=0;y<LOGO_H;y+=2){
+        for(var x=0;x<LOGO_W;x+=2){
+          var cx=LOGO_W/2,cy=LOGO_H/2,dx=x-cx,dy=y-cy,dist=Math.sqrt(dx*dx+dy*dy);
+          var inRing=dist>=85&&dist<=115,inDisc=dist<80,inText=y>160&&y<250&&x>60&&x<468;
+          if(inRing||inDisc||inText){
+            var c=fc[anchors.length%fc.length];
+            anchors.push({sx:x,sy:y,sr:c.r,sg:c.g,sb:c.b});
+          }
+        }
+      }
+    }
+
+    // ─── Page Reveal (NO image overlay) ─────────────────────────────────
+    function triggerPageReveal(){
+      setTimeout(function(){
+        var splashWhite=document.getElementById('splash-white');
+        splashWhite.classList.add('fade-out');
+        setTimeout(function(){
+          canvas.style.transition='opacity 1.2s ease';canvas.style.opacity='0';
+          splashWhite.style.transition='opacity 1s ease';splashWhite.style.opacity='0';
+          setTimeout(function(){
+            canvas.remove();splashWhite.remove();
+            if(hintEl)hintEl.remove();
+            var logoSrc=document.getElementById('logo-src');
+            if(logoSrc&&logoSrc.parentNode)logoSrc.parentNode.remove();
+          },1200);
+        },600);
+      },800);
+    }
+
+    // ─── Animation Loop (4-phase: flow → aggregate → settle → fade) ────
+    var lastTime=0;
+    function loop(timestamp){
+      var dt=Math.min((timestamp-lastTime)/16.67,3);
+      lastTime=timestamp;
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
+      noiseOffset+=0.0003*dt;
+
+      if(phase==='flow'){
+        particles.forEach(function(p){p.updateFlow(dt);p.draw();});
+      }else if(phase==='aggregate'){
+        var elapsed=timestamp-aggregateStart;
+        var progress=Math.min(elapsed/AGGREGATE_MS,1);
+        particles.forEach(function(p){p.updateAggregate(dt,progress);p.draw();});
+        if(progress>=1){phase='settle';settleStart=timestamp;}
+      }else if(phase==='settle'){
+        var elapsed2=timestamp-settleStart;
+        var progress2=Math.min(elapsed2/SETTLE_MS,1);
+        particles.forEach(function(p){p.updateAggregate(dt,1.0);p.draw();});
+        if(progress2>=1){phase='fade';fadeStart=timestamp;triggerPageReveal();}
+      }else if(phase==='fade'){
+        var elapsed3=timestamp-fadeStart;
+        var FADE_MS=2000,progress3=Math.min(elapsed3/FADE_MS,1);
+        var alpha=Math.max(0,1-progress3);
+        particles.forEach(function(p){p.alpha=alpha;p.draw();});
+      }
+      requestAnimationFrame(loop);
+    }
+
+    // ─── Init ───────────────────────────────────────────────────────────
+    function init(){
+      sampleLogoPixels().then(function(sampled){
+        anchors=sampled;
+        console.log('[Splash V3] Sampled '+anchors.length+' anchor pixels (step='+SAMPLE_STEP+')');
+        if(anchors.length<500)createFallbackAnchors();
+        computeTargets();
+        var count=Math.min(PARTICLE_COUNT,anchors.length);
+        for(var i=0;i<count;i++)particles.push(new Particle(i,count));
+        assignTargets();
+        ready=true;
+        requestAnimationFrame(loop);
+      });
+    }
+
+    // ─── Events ─────────────────────────────────────────────────────────
+    canvas.addEventListener('mousemove',function(e){mouseX=e.clientX;mouseY=e.clientY;});
+    canvas.addEventListener('mouseleave',function(){mouseX=-9999;mouseY=-9999;});
+    canvas.addEventListener('click',function(){
+      if(phase==='flow'&&ready){phase='aggregate';mouseActive=false;aggregateStart=performance.now();if(hintEl)hintEl.style.display='none';}
+    });
+    canvas.addEventListener('touchstart',function(e){
+      e.preventDefault();
+      var touch=e.touches[0];mouseX=touch.clientX;mouseY=touch.clientY;
+      if(phase==='flow'&&ready){phase='aggregate';mouseActive=false;aggregateStart=performance.now();if(hintEl)hintEl.style.display='none';}
+    },{passive:false});
+    canvas.addEventListener('touchmove',function(e){e.preventDefault();var touch=e.touches[0];mouseX=touch.clientX;mouseY=touch.clientY;},{passive:false});
+    window.addEventListener('resize',function(){
+      W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;
+      if(anchors.length>0){computeTargets();assignTargets();}
+    });
+    setTimeout(function(){if(phase==='flow'&&ready)canvas.click();},AUTO_TRIGGER_MS);
+    init();
+    }();
+    </script>
+    <!-- ═══ End Splash Animation ═══ -->
+
+</body>
 </html>
