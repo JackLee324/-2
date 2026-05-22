@@ -8,20 +8,22 @@ V8.0 "Singularity Force" used convergence-driven particle assembly with a golden
 
 ### Layer Stack
 ```
-z-index: 9999 — canvas#splash-canvas (all particles rendered here)
+z-index: 10001 — div#enter-hint (UX click prompt, fades in after particles settle)
+z-index: 9999  — canvas#splash-canvas (all particles rendered here)
 [off-screen]   — hidden div with logo-src img + logo-canvas for pixel extraction
 ```
 
 ### Removed from V8.0
 - `img#splash-logo` — no overlay image
 - `div#splash-white` — no white mask
-- `div#click-hint` — no hint text
+- `div#click-hint` — replaced by `div#enter-hint` (different behavior: fades in AFTER particles settle, not visible during float phase)
 - `@keyframes logo-reveal-glow` — no golden glow
 - All phase-based animation (explosion/float/magnetic/reveal)
 
 ### HTML
 ```html
 <canvas id="splash-canvas"></canvas>
+<div id="enter-hint">点击任意位置进入系统 - Click to Enter</div>
 <!-- Hidden pixel extraction (unchanged) -->
 <div style="position:absolute;left:-9999px;top:-9999px;width:528px;height:280px;overflow:hidden;pointer-events:none;">
   <img id="logo-src" src="logo.png" style="width:528px;height:280px;opacity:0;" crossorigin="anonymous">
@@ -29,7 +31,7 @@ z-index: 9999 — canvas#splash-canvas (all particles rendered here)
 </div>
 ```
 
-### CSS (~8 lines)
+### CSS (~16 lines)
 ```css
 #splash-canvas {
   position:fixed; top:0; left:0; width:100vw; height:100vh;
@@ -38,6 +40,16 @@ z-index: 9999 — canvas#splash-canvas (all particles rendered here)
 }
 #splash-canvas.fade-out {
   opacity:0; pointer-events:none;
+}
+#enter-hint {
+  position:fixed; bottom:40px; left:50%; transform:translateX(-50%);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:14px; color:#999; letter-spacing:2px;
+  z-index:10001; pointer-events:none;
+  opacity:0; transition: opacity 0.8s ease;
+}
+#enter-hint.show {
+  opacity:1;
 }
 ```
 
@@ -133,9 +145,17 @@ Timeline:
 - No mouse: all particles sit exactly at baseX/baseY forming perfect emblem
 
 ### Exit (click to dismiss)
-- Click canvas → `dismissed = true` → `canvas.classList.add('fade-out')`
+- Click canvas → `dismissed = true`
+- `enterHint.classList.remove('show')` — hide UX prompt
+- `canvas.classList.add('fade-out')`
 - 800ms CSS transition: canvas opacity 1 → 0
-- After 800ms: `canvas.remove()`, hidden extraction div removed, particles array cleared
+- After 800ms: `canvas.remove()`, hidden extraction div removed, `enterHint.remove()`, particles array cleared
+
+### UX Prompt Timing
+- At `init()`, set `setTimeout(() => enterHint.classList.add('show'), 2500)`
+- 2.5s after init, the hint text elegantly fades in (CSS opacity transition 0.8s)
+- Particles have fully settled by this point, forming the perfect emblem
+- Hint reads: "点击任意位置进入系统 - Click to Enter"
 
 ### Touch Support
 - touchstart/touchmove: update mouseX/Y from first touch
@@ -158,6 +178,7 @@ Timeline:
 | FRICTION | 0.92 | Air damping per frame |
 | LOGO_W / LOGO_H | 528 / 280 | Logo source dimensions |
 | LOGO_SCALE | 0.85 | Emblem size relative to viewport |
+| HINT_DELAY | 2500 | ms before enter-hint fades in |
 
 ## What Stays from V8.0
 
@@ -178,8 +199,8 @@ Timeline:
 - All phase constants: `PARTICLE_COUNT`, `EXPLOSION_MS`, `EXPLOSION_SPEED_MIN/MAX`, `EXPLOSION_FRICTION`, `FRICTION_FLOAT`, `NOISE_SCALE`, `NOISE_STRENGTH`, `AUTO_TRIGGER_MS`, `REVEAL_THRESHOLD`, `SNAP_THRESHOLD`, `REVEAL_FADE_MS`, `LOGO_GLOW_MS`, `MOUSE_RADIUS`(V8.0=180), `MOUSE_FORCE`(V8.0=2.5), `FRICTION_FLOAT`
 - `settled`, `_hasInitialDist`, `_initialDist` properties
 - `distToTarget()`, `initialDist()` methods
-- `img#splash-logo`, `div#splash-white`, `div#click-hint`
-- CSS: `.logo-reveal-glow`, `@keyframes logo-reveal-glow`, `@keyframes pulse-hint`, `#splash-logo`, `#splash-white`, `#click-hint`
+- `img#splash-logo`, `div#splash-white`, `div#click-hint` (replaced by `div#enter-hint`)
+- CSS: `.logo-reveal-glow`, `@keyframes logo-reveal-glow`, `@keyframes pulse-hint`, `#splash-logo`, `#splash-white`, `#click-hint` (replaced by `#enter-hint` + `#enter-hint.show`)
 - Console log tags: all `[V8.0]` → `[V9.0]`
 
 ## Verification
@@ -189,8 +210,9 @@ Timeline:
 3. **Rest state**: Zero mouse → all particles sit exactly at anchors, forming a razor-sharp emblem with readable text
 4. **Background**: Pure #ffffff white, zero color cast, ellipses, or glows
 5. **Mouse interaction**: Moving mouse over emblem → particles ripple outward like water. Leave mouse → spring back cleanly
-6. **Click dismiss**: Click canvas → 0.8s fade → all splash DOM removed
-7. **Resize**: Particles automatically re-anchor to new center position
-8. **Console**: `[V9.0] Sampled ~6400 anchor pixels` → particles form emblem
-9. **Touch**: Same fluid repulsion on touch devices
-10. **Edge cases**: No logo load (fallback anchors), rapid resize, double click guard
+6. **UX prompt**: After ~2.5s, "点击任意位置进入系统 - Click to Enter" fades in at bottom center
+7. **Click dismiss**: Click canvas → hint hides → 0.8s fade → all splash DOM removed
+8. **Resize**: Particles automatically re-anchor to new center position
+9. **Console**: `[V9.0] Sampled ~6400 anchor pixels` → particles form emblem
+10. **Touch**: Same fluid repulsion on touch devices
+11. **Edge cases**: No logo load (fallback anchors), rapid resize, double click guard
