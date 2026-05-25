@@ -1,5 +1,4 @@
-    <style>
-        :root {
+:root {
             --primary-blue: #1D3557;
             --primary-red: #E63946;
             --accent-gold: #F4A261;
@@ -666,7 +665,6 @@
             .theme-banner h2 { font-size: 1.1rem; }
         }
 
-<style>
 /* ── Floating Notice Pill ─────────────────────────── */
 .floating-notice-pill {
     position: fixed;
