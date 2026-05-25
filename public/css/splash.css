@@ -1,0 +1,4 @@
+    #splash-canvas{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;cursor:pointer;transition:opacity 0.8s ease;}
+    #splash-canvas.fade-out{opacity:0;pointer-events:none;}
+    #enter-hint{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#999;letter-spacing:2px;z-index:10001;pointer-events:none;opacity:0;transition:opacity 0.8s ease;}
+    #enter-hint.show{opacity:1;}
