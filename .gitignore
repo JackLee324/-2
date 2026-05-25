@@ -1,0 +1,11 @@
+node_modules/
+.DS_Store
+*.bak*
+*.restore
+.playwright-mcp/
+*.zip
+*.dmg
+splash-*.png
+v6-*.png
+v7-*.png
+.env
