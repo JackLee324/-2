@@ -201,14 +201,27 @@
             });
         }
 
+        // Toast 提示（非阻塞，替代 alert）
+        function showToast(msg) {
+          var el = document.createElement('div');
+          el.textContent = msg;
+          el.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1D3557;color:#fff;padding:10px 24px;border-radius:8px;z-index:99999;font-size:14px;opacity:0;transition:opacity 0.3s;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
+          document.body.appendChild(el);
+          requestAnimationFrame(function () { el.style.opacity = '1'; });
+          setTimeout(function () {
+            el.style.opacity = '0';
+            setTimeout(function () { el.remove(); }, 300);
+          }, 3000);
+        }
+
         // Wishlist
         let wishlist = [];
         function addToWishlist(course) {
             if (!wishlist.includes(course)) {
                 wishlist.push(course);
-                alert('🎒 已添加到心愿单！\n当前' + wishlist.length + '个课程在心愿单中。');
+                showToast('已添加到心愿单（共' + wishlist.length + '个课程）');
             } else {
-                alert('⚠️ 该课程已在心愿单中！');
+                showToast('该课程已在心愿单中');
             }
         }
 
