@@ -71,15 +71,20 @@ app.use(function (err, req, res, next) {
   res.status(500).json({ success: false, error: 'Internal server error' });
 });
 
-var server = app.listen(config.PORT, function () {
-  console.log('\n🏅 Tsinglan PE CMS running at http://localhost:' + config.PORT);
-  console.log('📋 Public page:  http://localhost:' + config.PORT + '/');
-  console.log('⚙️  Admin panel: http://localhost:' + config.PORT + '/admin');
-  console.log('📅 Calendar:     http://localhost:' + config.PORT + '/calendar\n');
-});
+// 仅在直接运行时启动服务器（被 require 时不启动，方便测试）
+if (require.main === module) {
+  var server = app.listen(config.PORT, function () {
+    console.log('\n🏅 Tsinglan PE CMS running at http://localhost:' + config.PORT);
+    console.log('📋 Public page:  http://localhost:' + config.PORT + '/');
+    console.log('⚙️  Admin panel: http://localhost:' + config.PORT + '/admin');
+    console.log('📅 Calendar:     http://localhost:' + config.PORT + '/calendar\n');
+  });
 
-// 优雅关闭
-process.on('SIGTERM', function () {
-  console.log('[Server] SIGTERM — shutting down gracefully');
-  server.close(function () { process.exit(0); });
-});
+  // 优雅关闭
+  process.on('SIGTERM', function () {
+    console.log('[Server] SIGTERM — shutting down gracefully');
+    server.close(function () { process.exit(0); });
+  });
+}
+
+module.exports = app;
