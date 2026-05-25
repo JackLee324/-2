@@ -1,10 +1,33 @@
-# 项目结构重构 — 零功能变更的可迭代性优化
+# 项目结构重构 + 安全加固 — 零功能变更的可迭代性优化
 
 ## 背景
 
-当前项目 3 个 HTML 文件均为单体文件（index.html 5972 行/242KB、admin.html 3242 行/154KB、calendar.html 1392 行/50KB），CSS 和 JS 全部内联。服务端 index.js 865 行，包含所有路由、中间件、multer 配置和数据访问逻辑。全局变量冲突、同步文件 IO 并发不安全、零测试覆盖。
+当前项目 3 个 HTML 文件均为单体文件（index.html 5972 行/242KB、admin.html 3242 行/154KB、calendar.html 1392 行/50KB），CSS 和 JS 全部内联。服务端 index.js 865 行，包含所有路由、中间件、multer 配置和数据访问逻辑。
 
-目标：在不改变任何 UI 内容、操作逻辑、部署方式的前提下，拆分文件、引入功能域隔离、加固服务端数据写入安全。
+2026-05-25 系统化代码审查发现 16 个问题：无 .gitignore、node_modules 被追踪（745 文件）、硬编码弱密码、路径遍历漏洞、非原子 JSON 写入、登录无速率限制等。
+
+目标：在不改变任何 UI 内容、操作逻辑、部署方式的前提下，拆分文件 + 功能域隔离 + 修复审查发现的所有高危/中危问题。
+
+## 审查发现与修复映射
+
+| # | 问题 | 严重度 | 修复方式 |
+|---|---|---|---|
+| 1 | 无 `.gitignore`，`node_modules/` 被追踪 | 🔴 高 | 新增 `.gitignore`，`git rm --cached` 清理 |
+| 2 | 硬编码密码 `123456` + 可猜测 token | 🔴 高 | `config.js` 外置，环境变量可覆盖 |
+| 3 | DELETE /api/parkour-image 路径遍历 | 🔴 高 | 路由中加路径白名单校验 |
+| 4 | 7 个 `writeFileSync` 非原子写入 | 🟠 中 | `store.js` 原子写入队列 |
+| 5 | GET / 和 GET /admin 无 try-catch | 🟠 中 | 加 try-catch + 500 响应 |
+| 6 | 登录无速率限制 | 🟠 中 | 简易内存限流（60s 内最多 5 次） |
+| 7 | PUT /api/gallery/:id 无输入验证 | 🟠 中 | 白名单字段校验 |
+| 8 | POST/PUT /api/venues 功能重复 | 🟡 低 | 合并为一个路由 |
+| 9 | Date.now() 毫秒 ID 可能冲突 | 🟡 低 | 加随机后缀防冲突 |
+| 10 | 事件更新后不排序 | 🟡 低 | update 路由加 `.sort()` |
+| 11 | `multer@2.1.1` 非官方包 | 🟡 低 | 降级到 `multer@1.4.5-lts.1` |
+| 12 | .DS_Store / .bak7 / .restore / ZIP 在 git 中 | 🟡 低 | `.gitignore` + `git rm` |
+| 13 | `.playwright-mcp/` 480MB 开发产物 | 🟡 低 | `.gitignore` 排除 |
+| 14 | 13 个中文文件名 | 🟡 低 | 保留不变（跨平台影响小） |
+| 15 | README 过时 | 🟡 低 | 更新项目结构图 |
+| 16 | 根目录测试截图未清理 | 🟡 低 | `.gitignore` 排除 |
 
 ## 架构
 
@@ -64,14 +87,59 @@ server/
 - 写临时文件 → rename 原子替换，崩溃不损坏数据
 - `read(name)` 同步读（兼容现有调用模式）
 
+### config.js — 配置外置 + 凭据脱敏
+
+```javascript
+// server/config.js
+module.exports = {
+  PORT: process.env.PORT || 3000,
+  ADMIN_TOKEN: process.env.ADMIN_TOKEN || 'tsinglan_pe_secure_token_2026',
+  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || '123456',
+  UPLOAD_MAX_SIZE: 200 * 1024 * 1024
+};
+```
+
+默认值保留以兼容现有部署，但环境变量 `ADMIN_TOKEN` / `ADMIN_PASSWORD` 可覆盖。不再在 `admin_auth.json` 不存在时自动写入默认凭据到磁盘。
+
+### 安全加固要点
+
+**路径遍历修复：** DELETE /api/parkour-image 中校验 `imagePath` 解析后的绝对路径必须以 `public/` 目录为前缀，否则拒绝。
+
+**速率限制：** 登录路由加内存计数，同一 IP 60 秒内最多 5 次尝试，超限返回 429。
+
+**输入验证：** PUT /api/gallery/:id 改为白名单字段校验，只允许更新 `caption` 和 `date`。
+
+**ID 生成：** `Date.now().toString(36) + Math.random().toString(36).slice(2,6)` 防毫秒级冲突。
+
+**Multer 降级：** `multer@2.1.1`（非官方 fork）→ `multer@1.4.5-lts.1`（官方 LTS），API 兼容。
+
+## `.gitignore` 设计
+
+```
+node_modules/
+.DS_Store
+*.bak*
+*.restore
+.playwright-mcp/
+*.zip
+*.dmg
+splash-*.png
+v6-*.png
+v7-*.png
+.env
+```
+
+执行 `git rm --cached -r node_modules/ .DS_Store *.bak* *.restore *.zip` 清理已追踪的无效文件（但保留工作区副本）。
+
 ## 不变项（零修改）
 
 - 所有 HTML 的 DOM 结构和 CSS class 名
 - 所有 CSS 选择器和规则值
 - 所有 JS 函数逻辑和 API 调用
 - 7 个 JSON 数据文件的格式和路径
-- `package.json` 依赖和 `npm start` 部署方式
+- `npm start` 部署方式
 - `logo.png` 路径和文件名
+- `package.json` 中 express 和 cors 依赖不变（multer 版本降级但 API 兼容）
 
 ## 风险与控制
 
@@ -84,8 +152,12 @@ server/
 
 ## 验证
 
-1. 启动 `node server/index.js`，访问 `http://localhost:3000`
-2. 逐一验证每个功能模块：splash 动画→课表展示→日历→相册→场馆→跑酷→管理后台
-3. 用浏览器 DevTools 检查 console 无报错
-4. 用 Playwright 截图对比重构前后的页面
-5. `git diff --stat` 确认文件数变化：增 ~15 个新文件，3 个 HTML 大幅瘦身
+1. **Git 清理验证：** `find . -name '.DS_Store' | wc -l` 返回 0；`git ls-files node_modules/ | wc -l` 返回 0
+2. 启动 `node server/index.js`，访问 `http://localhost:3000`
+3. 逐一验证每个功能模块：splash 动画→课表展示→日历→相册→场馆→跑酷→管理后台
+4. 用浏览器 DevTools 检查 console 无报错
+5. 用 Playwright 截图对比重构前后的页面
+6. **安全验证：** `curl -X POST http://localhost:3000/api/admin/login -d '{"password":"wrong"}'` 连续 6 次 → 第 6 次返回 429
+7. **路径遍历验证：** `curl -X DELETE http://localhost:3000/api/parkour-image -H 'x-admin-token: ...' -d '{"imagePath":"../../../etc/passwd"}'` → 返回 400
+8. **原子写入验证：** 模拟并发写入 → 数据不丢失
+9. `git diff --stat` 确认：增 ~18 个新文件，3 个 HTML 大幅瘦身，node_modules 从追踪中移除
