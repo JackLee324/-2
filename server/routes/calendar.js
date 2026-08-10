@@ -144,4 +144,117 @@ router.put('/calendar/notice', auth.validateAdminSession, function (req, res) {
   }
 });
 
+// ── Classes ──
+
+// GET /api/calendar/classes
+router.get('/calendar/classes', function (req, res) {
+  try {
+    var cal = store.read('academic_calendar');
+    res.json({ success: true, data: cal.classes || [] });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// PUT /api/calendar/classes
+router.put('/calendar/classes', auth.validateAdminSession, function (req, res) {
+  try {
+    var classes = req.body;
+    if (!Array.isArray(classes)) {
+      return res.status(400).json({ success: false, error: 'Classes must be an array' });
+    }
+    var cal = store.read('academic_calendar');
+    cal.classes = classes;
+    store.write('academic_calendar', cal);
+    res.json({ success: true, classes: cal.classes });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ── Venue Reservations ──
+
+// GET /api/calendar/reservations?date=YYYY-MM-DD
+router.get('/calendar/reservations', function (req, res) {
+  try {
+    var date = req.query.date;
+    var cal = store.read('academic_calendar');
+    var reservations = cal.venueReservations || [];
+    if (date) {
+      reservations = reservations.filter(function (r) { return r.date === date; });
+    }
+    reservations.sort(function (a, b) { return a.timeSlot.localeCompare(b.timeSlot); });
+    res.json({ success: true, data: reservations });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/calendar/reservation
+router.post('/calendar/reservation', auth.validateAdminSession, function (req, res) {
+  try {
+    var date = req.body.date, venueId = req.body.venueId;
+    var className = req.body.className, timeSlot = req.body.timeSlot;
+    if (!date || !venueId || !className || !timeSlot) {
+      return res.status(400).json({ success: false, error: 'date, venueId, className, and timeSlot are required' });
+    }
+    var cal = store.read('academic_calendar');
+    if (!cal.venueReservations) cal.venueReservations = [];
+    var newRes = {
+      id: 'res' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      date: date,
+      venueId: venueId,
+      className: className,
+      timeSlot: timeSlot
+    };
+    cal.venueReservations.push(newRes);
+    cal.venueReservations.sort(function (a, b) {
+      return a.date.localeCompare(b.date) || a.timeSlot.localeCompare(b.timeSlot);
+    });
+    store.write('academic_calendar', cal);
+    res.json({ success: true, reservation: newRes });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// PUT /api/calendar/reservation/:id
+router.put('/calendar/reservation/:id', auth.validateAdminSession, function (req, res) {
+  try {
+    var id = req.params.id;
+    var cal = store.read('academic_calendar');
+    var reservations = cal.venueReservations || [];
+    var idx = reservations.findIndex(function (r) { return r.id === id; });
+    if (idx === -1) {
+      return res.status(404).json({ success: false, error: 'Reservation not found' });
+    }
+    reservations[idx] = Object.assign({}, reservations[idx], req.body, { id: id });
+    reservations.sort(function (a, b) {
+      return a.date.localeCompare(b.date) || a.timeSlot.localeCompare(b.timeSlot);
+    });
+    store.write('academic_calendar', cal);
+    res.json({ success: true, reservation: reservations[idx] });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// DELETE /api/calendar/reservation/:id
+router.delete('/calendar/reservation/:id', auth.validateAdminSession, function (req, res) {
+  try {
+    var id = req.params.id;
+    var cal = store.read('academic_calendar');
+    var reservations = cal.venueReservations || [];
+    var idx = reservations.findIndex(function (r) { return r.id === id; });
+    if (idx === -1) {
+      return res.status(404).json({ success: false, error: 'Reservation not found' });
+    }
+    var deleted = reservations.splice(idx, 1)[0];
+    store.write('academic_calendar', cal);
+    res.json({ success: true, deleted: deleted });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 module.exports = router;

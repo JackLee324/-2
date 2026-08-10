@@ -3,6 +3,7 @@ var http = require('http');
 var assert = require('assert');
 
 var BASE = 'http://localhost:3099';
+var ADMIN_TOKEN = 'tsinglan_pe_secure_token_2026';
 var passed = 0;
 var failed = 0;
 
@@ -14,18 +15,26 @@ function get(path, cb) {
   }).on('error', function (e) { cb(0, null, e.message); });
 }
 
-function post(path, data, cb) {
-  var payload = JSON.stringify(data);
-  var opts = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': payload.length } };
+function request(method, path, data, headers, cb) {
+  var payload = data ? JSON.stringify(data) : '';
+  var hdrs = Object.assign({ 'Content-Type': 'application/json' }, headers || {});
+  if (payload) hdrs['Content-Length'] = Buffer.byteLength(payload);
+  var opts = { method: method, headers: hdrs };
   var req = http.request(BASE + path, opts, function (res) {
     var body = '';
     res.on('data', function (c) { body += c; });
     res.on('end', function () { cb(res.statusCode, body); });
   });
   req.on('error', function (e) { cb(0, null, e.message); });
-  req.write(payload);
+  if (payload) req.write(payload);
   req.end();
 }
+
+function post(path, data, cb) { request('POST', path, data, null, cb); }
+function put(path, data, cb) { request('PUT', path, data, null, cb); }
+function authPost(path, data, cb) { request('POST', path, data, { 'x-admin-token': ADMIN_TOKEN }, cb); }
+function authPut(path, data, cb) { request('PUT', path, data, { 'x-admin-token': ADMIN_TOKEN }, cb); }
+function authDel(path, cb) { request('DELETE', path, null, { 'x-admin-token': ADMIN_TOKEN }, cb); }
 
 function test(name, fn) {
   try { fn(); passed++; console.log('  PASS: ' + name); }
@@ -75,40 +84,139 @@ function runTests() {
             assert.ok(data.data.globalNotice);
           });
 
-          // 5. Venues
-          get('/api/venues', function (code, body) {
-            test('GET /api/venues returns 200', function () {
+          // 4b. Calendar Classes (public read)
+          get('/api/calendar/classes', function (code, body) {
+            test('GET /api/calendar/classes returns 200', function () {
               assert.strictEqual(code, 200);
               var data = JSON.parse(body);
               assert.strictEqual(data.success, true);
-              assert.ok(data.data.coreVenues);
-              assert.ok(data.data.auxVenues);
+              assert.ok(Array.isArray(data.data));
             });
 
-            // 6. Login
-            post('/api/admin/login', { password: '123456' }, function (code, body) {
-              test('POST /api/admin/login correct password returns token', function () {
+            // 4c. Reservations by date (public read)
+            get('/api/calendar/reservations?date=2026-08-05', function (code, body) {
+              test('GET /api/calendar/reservations returns 200', function () {
                 assert.strictEqual(code, 200);
                 var data = JSON.parse(body);
                 assert.strictEqual(data.success, true);
-                assert.ok(data.token);
+                assert.ok(Array.isArray(data.data));
               });
 
-              // 7. Health
-              get('/api/health', function (code, body) {
-                test('GET /api/health returns ok', function () {
+              // 4d. Create Reservation (auth required)
+              authPost('/api/calendar/reservation', {
+                date: '2026-08-05',
+                venueId: 'outdoor-playground',
+                className: 'K1',
+                timeSlot: '9:00-10:00'
+              }, function (code, body) {
+                var data = JSON.parse(body);
+                test('POST /api/calendar/reservation creates reservation', function () {
                   assert.strictEqual(code, 200);
-                  var data = JSON.parse(body);
-                  assert.strictEqual(data.status, 'ok');
-                  assert.ok(data.uptime > 0);
+                  assert.strictEqual(data.success, true);
+                  assert.ok(data.reservation);
+                  assert.ok(data.reservation.id);
                 });
 
-                console.log('\n' + passed + '/' + (passed + failed) + ' tests passed');
-                server.close(function () { process.exit(failed > 0 ? 1 : 0); });
+                var resId = data.reservation ? data.reservation.id : null;
+
+                // 4e. Unauthorized create should fail
+                post('/api/calendar/reservation', {
+                  date: '2026-08-06',
+                  venueId: 'sensory-gym',
+                  className: 'K2',
+                  timeSlot: '10:00-11:00'
+                }, function (code, body) {
+                  test('POST /api/calendar/reservation without auth returns 401', function () {
+                    assert.strictEqual(code, 401);
+                  });
+
+                  // Continue with update/delete tests if reservation was created
+                  function afterReservationTests() {
+                    // 4h. Update Classes (admin auth)
+                    authPut('/api/calendar/classes', ['K1', 'K2', 'K3'], function (code, body) {
+                      test('PUT /api/calendar/classes updates classes', function () {
+                        assert.strictEqual(code, 200);
+                        var d = JSON.parse(body);
+                        assert.strictEqual(d.success, true);
+                        assert.deepStrictEqual(d.classes, ['K1', 'K2', 'K3']);
+                      });
+
+                      // 4i. Unauthorized classes update fails
+                      put('/api/calendar/classes', ['X1'], function (code) {
+                        test('PUT /api/calendar/classes without auth returns 401', function () {
+                          assert.strictEqual(code, 401);
+                        });
+
+                        runRemainingTests(server);
+                      });
+                    });
+                  }
+
+                  if (resId) {
+                    // 4f. Update Reservation
+                    authPut('/api/calendar/reservation/' + resId, { className: 'K2' }, function (code, body) {
+                      test('PUT /api/calendar/reservation/:id updates reservation', function () {
+                        assert.strictEqual(code, 200);
+                        var d = JSON.parse(body);
+                        assert.strictEqual(d.success, true);
+                        assert.strictEqual(d.reservation.className, 'K2');
+                      });
+
+                      // 4g. Delete Reservation
+                      authDel('/api/calendar/reservation/' + resId, function (code, body) {
+                        test('DELETE /api/calendar/reservation/:id deletes reservation', function () {
+                          assert.strictEqual(code, 200);
+                          var d = JSON.parse(body);
+                          assert.strictEqual(d.success, true);
+                        });
+
+                        afterReservationTests();
+                      });
+                    });
+                  } else {
+                    afterReservationTests();
+                  }
+                });
               });
             });
           });
         });
+      });
+    });
+  });
+}
+
+function runRemainingTests(server) {
+  // 5. Venues
+  get('/api/venues', function (code, body) {
+    test('GET /api/venues returns 200', function () {
+      assert.strictEqual(code, 200);
+      var data = JSON.parse(body);
+      assert.strictEqual(data.success, true);
+      assert.ok(data.data.coreVenues);
+      assert.ok(data.data.auxVenues);
+    });
+
+    // 6. Login
+    post('/api/admin/login', { password: '123456' }, function (code, body) {
+      test('POST /api/admin/login correct password returns token', function () {
+        assert.strictEqual(code, 200);
+        var data = JSON.parse(body);
+        assert.strictEqual(data.success, true);
+        assert.ok(data.token);
+      });
+
+      // 7. Health
+      get('/api/health', function (code, body) {
+        test('GET /api/health returns ok', function () {
+          assert.strictEqual(code, 200);
+          var data = JSON.parse(body);
+          assert.strictEqual(data.status, 'ok');
+          assert.ok(data.uptime > 0);
+        });
+
+        console.log('\n' + passed + '/' + (passed + failed) + ' tests passed');
+        server.close(function () { process.exit(failed > 0 ? 1 : 0); });
       });
     });
   });

@@ -11,11 +11,11 @@ app.use(cors());
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 
-// 静态资源：JS/CSS/图片 1 年缓存，HTML 不缓存
+// 静态资源：图片 1 年缓存，HTML/JS/CSS 不缓存（开发阶段避免浏览器缓存旧代码）
 app.use(express.static(path.join(__dirname, '..', 'public'), {
   maxAge: '1y',
   setHeaders: function (res, filePath) {
-    if (/\.html$/.test(filePath)) {
+    if (/\.(html|js|css)$/.test(filePath)) {
       res.setHeader('Cache-Control', 'no-cache');
     }
   }

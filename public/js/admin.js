@@ -168,13 +168,13 @@
                 b.classList.toggle('active', b.dataset.tab === tab);
             });
             document.getElementById('currentTabLabel').textContent =
-                { prek: 'PreK PE', k: 'K PE', climbing: 'Climbing & Swimming', gallery: '奥林匹克相册', parkour: '晨间跑酷管理', calendar: '在线校历管理', venues: '场地赋能管理', security: '安全设置' }[tab] || tab;
+                { prek: 'PreK PE', k: 'K PE', climbing: 'Climbing & Swimming', gallery: '奥林匹克相册', parkour: '晨间跑酷管理', calendar: '在线校历管理', venues: '场地赋能管理', reservations: '场地预约管理', security: '安全设置' }[tab] || tab;
 
             // Show/hide curriculum section
             const tableWrap = document.querySelector('.table-wrap');
             const toolbar = document.querySelector('.toolbar');
-            if (tableWrap) tableWrap.classList.toggle('hidden', tab === 'gallery' || tab === 'parkour' || tab === 'calendar' || tab === 'venues' || tab === 'security');
-            if (toolbar) toolbar.classList.toggle('hidden', tab === 'gallery' || tab === 'parkour' || tab === 'calendar' || tab === 'venues' || tab === 'security');
+            if (tableWrap) tableWrap.classList.toggle('hidden', tab === 'gallery' || tab === 'parkour' || tab === 'calendar' || tab === 'venues' || tab === 'reservations' || tab === 'security');
+            if (toolbar) toolbar.classList.toggle('hidden', tab === 'gallery' || tab === 'parkour' || tab === 'calendar' || tab === 'venues' || tab === 'reservations' || tab === 'security');
 
             // Show/hide gallery section
             const gallerySection = document.getElementById('gallerySection');
@@ -200,6 +200,14 @@
             if (calSection)         calSection.classList.toggle('hidden', tab !== 'calendar');
             if (calListSection)     calListSection.classList.toggle('hidden', tab !== 'calendar');
 
+            // Show/hide venues section
+            const venuesSection = document.getElementById('venuesSection');
+            if (venuesSection) venuesSection.classList.toggle('hidden', tab !== 'venues');
+
+            // Show/hide reservations section
+            const reservationsSection = document.getElementById('reservationsSection');
+            if (reservationsSection) reservationsSection.classList.toggle('hidden', tab !== 'reservations');
+
             // Show/hide security section
             const securitySection = document.getElementById('securitySection');
             if (securitySection) securitySection.classList.toggle('hidden', tab !== 'security');
@@ -213,6 +221,8 @@
                 loadCalendarData().then(() => { renderCalendarTable(); renderThemeList(); loadNoticePanel(); });
             } else if (tab === 'venues') {
                 initVenuesTab();
+            } else if (tab === 'reservations') {
+                initReservationsTab();
             } else {
                 renderTable();
             }
@@ -1403,6 +1413,205 @@
             } catch (err) {
                 showToast('❌ 删除失败: ' + err.message, 'error');
             }
+        }
+
+        // ─── Venue Reservations Management ──────────────────────────────────────
+        var localClasses = [];
+        var editingResId = null;
+        var venueNameMap = {};
+
+        async function initReservationsTab() {
+            await loadClasses();
+            await loadVenueOptions();
+            document.getElementById('resDate').value = new Date().toISOString().slice(0, 10);
+            loadReservations();
+        }
+
+        async function loadClasses() {
+            try {
+                var res = await fetch('/api/calendar/classes');
+                var data = await res.json();
+                if (data.success) {
+                    localClasses = data.data || [];
+                    renderClassList();
+                    renderClassSelect();
+                }
+            } catch (e) { console.error('Failed to load classes:', e); }
+        }
+
+        function renderClassList() {
+            var container = document.getElementById('classList');
+            if (!container) return;
+            container.innerHTML = localClasses.map(function (c, i) {
+                return '<span style="display:inline-flex;align-items:center;gap:0.4rem;background:#F1F5F9;padding:0.4rem 0.75rem;border-radius:8px;font-size:0.85rem;">' +
+                    c + ' <button onclick="removeClassItem(' + i + ')" style="background:none;border:none;color:#E63946;cursor:pointer;font-size:1rem;line-height:1;">&times;</button></span>';
+            }).join('');
+        }
+
+        function renderClassSelect() {
+            var select = document.getElementById('resClass');
+            if (!select) return;
+            select.innerHTML = localClasses.map(function (c) {
+                return '<option value="' + c + '">' + c + '</option>';
+            }).join('');
+        }
+
+        function addClass() {
+            var input = document.getElementById('newClassName');
+            var name = (input.value || '').trim();
+            if (!name) { alert('请输入班级名称'); return; }
+            if (localClasses.indexOf(name) >= 0) { alert('该班级已存在'); return; }
+            localClasses.push(name);
+            input.value = '';
+            renderClassList();
+            renderClassSelect();
+        }
+
+        function removeClassItem(index) {
+            localClasses.splice(index, 1);
+            renderClassList();
+            renderClassSelect();
+        }
+
+        async function saveClasses() {
+            try {
+                var token = getAdminToken();
+                var res = await fetch('/api/calendar/classes', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'x-admin-token': token || '' },
+                    body: JSON.stringify(localClasses)
+                });
+                var data = await res.json();
+                if (data.success) {
+                    showToast('班级列表已保存');
+                } else {
+                    alert('保存失败: ' + (data.error || ''));
+                }
+            } catch (e) { alert('请求失败: ' + e.message); }
+        }
+
+        async function loadVenueOptions() {
+            try {
+                var res = await fetch('/api/venues');
+                var data = await res.json();
+                if (data.success) {
+                    var allVenues = (data.data.coreVenues || []).concat(data.data.auxVenues || []);
+                    allVenues.forEach(function (v) { venueNameMap[v.id] = v.name; });
+                    var select = document.getElementById('resVenue');
+                    if (!select) return;
+                    select.innerHTML = allVenues.map(function (v) {
+                        return '<option value="' + v.id + '">' + v.name + '</option>';
+                    }).join('');
+                }
+            } catch (e) { console.error('Failed to load venues:', e); }
+        }
+
+        async function loadReservations() {
+            var date = document.getElementById('resFilterDate').value;
+            var container = document.getElementById('reservationList');
+            if (!container) return;
+            if (!date) {
+                container.innerHTML = '<p style="color:#94A3B8;text-align:center;padding:1.5rem;">请选择筛选日期</p>';
+                return;
+            }
+            try {
+                var res = await fetch('/api/calendar/reservations?date=' + encodeURIComponent(date));
+                var data = await res.json();
+                if (data.success && data.data.length > 0) {
+                    container.innerHTML = data.data.map(function (r) {
+                        var bgColor = editingResId === r.id ? '#FFF3CD' : '#F8FAFC';
+                        return '<div style="display:flex;align-items:center;justify-content:space-between;background:' + bgColor + ';padding:0.75rem 1rem;border-radius:10px;border:1px solid #E2E8F0;">' +
+                            '<div><strong>' + (venueNameMap[r.venueId] || r.venueId) + '</strong> · ' + r.className + ' · <span style="color:#64748B;">' + r.timeSlot + '</span></div>' +
+                            '<div style="display:flex;gap:0.4rem;">' +
+                            '<button onclick="editReservation(\'' + r.id + '\')" style="background:#F1F5F9;border:none;padding:0.3rem 0.6rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">✏️</button>' +
+                            '<button onclick="deleteReservation(\'' + r.id + '\')" style="background:#FEE2E2;border:none;padding:0.3rem 0.6rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">🗑️</button>' +
+                            '</div></div>';
+                    }).join('');
+                } else {
+                    container.innerHTML = '<p style="color:#94A3B8;text-align:center;padding:1.5rem;">' + date + ' 暂无预约记录</p>';
+                }
+            } catch (e) { container.innerHTML = '<p style="color:#E63946;text-align:center;padding:1rem;">加载失败: ' + e.message + '</p>'; }
+        }
+
+        async function addOrUpdateReservation() {
+            var date = document.getElementById('resDate').value;
+            var venueId = document.getElementById('resVenue').value;
+            var className = document.getElementById('resClass').value;
+            var timeSlot = document.getElementById('resTimeSlot').value.trim();
+            var editId = document.getElementById('editResId').value;
+
+            if (!date || !venueId || !className || !timeSlot) {
+                alert('请填写所有字段');
+                return;
+            }
+
+            try {
+                var token = getAdminToken();
+                var url = editId ? '/api/calendar/reservation/' + editId : '/api/calendar/reservation';
+                var method = editId ? 'PUT' : 'POST';
+                var res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json', 'x-admin-token': token || '' },
+                    body: JSON.stringify({ date: date, venueId: venueId, className: className, timeSlot: timeSlot })
+                });
+                var data = await res.json();
+                if (data.success) {
+                    showToast(editId ? '预约已更新' : '预约已创建');
+                    cancelEditReservation();
+                    loadReservations();
+                } else {
+                    alert('操作失败: ' + (data.error || ''));
+                }
+            } catch (e) { alert('请求失败: ' + e.message); }
+        }
+
+        async function editReservation(id) {
+            try {
+                var res = await fetch('/api/calendar/reservations?date=' + document.getElementById('resFilterDate').value);
+                var data = await res.json();
+                if (data.success) {
+                    var found = data.data.find(function (r) { return r.id === id; });
+                    if (found) {
+                        document.getElementById('resDate').value = found.date;
+                        document.getElementById('resVenue').value = found.venueId;
+                        document.getElementById('resClass').value = found.className;
+                        document.getElementById('resTimeSlot').value = found.timeSlot;
+                        document.getElementById('editResId').value = found.id;
+                        document.getElementById('cancelResEditBtn').style.display = '';
+                        editingResId = id;
+                        loadReservations();
+                        document.getElementById('reservationsSection').scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } catch (e) { alert('加载预约失败: ' + e.message); }
+        }
+
+        function cancelEditReservation() {
+            document.getElementById('editResId').value = '';
+            document.getElementById('cancelResEditBtn').style.display = 'none';
+            document.getElementById('resTimeSlot').value = '';
+            editingResId = null;
+            loadReservations();
+        }
+
+        async function deleteReservation(id) {
+            if (!confirm('确定删除该预约吗？')) return;
+            try {
+                var token = getAdminToken();
+                var url = '/api/calendar/reservation/' + id;
+                var res = await fetch(url, {
+                    method: 'DELETE',
+                    headers: { 'x-admin-token': token || '' }
+                });
+                var data = await res.json();
+                if (data.success) {
+                    showToast('预约已删除');
+                    if (editingResId === id) cancelEditReservation();
+                    loadReservations();
+                } else {
+                    alert('删除失败: ' + (data.error || ''));
+                }
+            } catch (e) { alert('请求失败: ' + e.message); }
         }
 
         // Init calendar tab

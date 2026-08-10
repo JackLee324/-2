@@ -8,7 +8,7 @@ var defaults = {
   olympic_gallery: [],
   morning_parkour: [],
   parkour_videos: [],
-  academic_calendar: { monthlyThemes: [], events: [], globalNotice: { isActive: false, type: 'info', content: '' } },
+  academic_calendar: { monthlyThemes: [], events: [], globalNotice: { isActive: false, type: 'info', content: '' }, classes: [], venueReservations: [] },
   campus_venues: { coreVenues: [], auxVenues: [], rules: { equipmentReturn: '', bikeParking: '' } },
   admin_auth: { adminPassword: '123456', adminToken: 'tsinglan_pe_secure_token_2026' }
 };
@@ -30,11 +30,21 @@ function read(name) {
   }
   var raw = fs.readFileSync(f, 'utf8');
   var data = JSON.parse(raw);
-  // 向后兼容：确保 globalNotice 存在
-  if (name === 'academic_calendar') {
-    if (!data.globalNotice) data.globalNotice = { isActive: false, type: 'info', content: '' };
-    if (!data.monthlyThemes) data.monthlyThemes = [];
-    if (!data.events) data.events = [];
+  // 向后兼容：自动补上 defaults 中定义但数据文件缺失的顶层字段
+  var def = defaults[name];
+  if (def && typeof def === 'object' && !Array.isArray(def)) {
+    var changed = false;
+    Object.keys(def).forEach(function (key) {
+      if (!(key in data)) {
+        data[key] = JSON.parse(JSON.stringify(def[key]));
+        changed = true;
+      }
+    });
+    if (changed) {
+      fs.writeFile(f, JSON.stringify(data, null, 2), 'utf8', function (err) {
+        if (err) console.error('[store] auto-migrate write failed for ' + name + ':', err.message);
+      });
+    }
   }
   return data;
 }

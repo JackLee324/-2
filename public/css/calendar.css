@@ -632,6 +632,112 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* ── Venue Reservations Panel ── */
+        .venue-reservations-panel {
+            background: var(--bg-card);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(29, 53, 87, 0.06);
+        }
+
+        .venue-reservations-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            background: linear-gradient(135deg, #2A9D8F 0%, #264573 100%);
+            color: white;
+        }
+
+        .venue-reservations-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .venue-reservations-date {
+            font-size: 0.8rem;
+            opacity: 0.85;
+            font-weight: 500;
+        }
+
+        .venue-reservation-list {
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .venue-res-card {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #F8FAFC;
+            border-radius: 12px;
+            border: 1px solid rgba(29, 53, 87, 0.06);
+            transition: all 0.2s;
+        }
+
+        .venue-res-card:hover {
+            background: #F0F4F8;
+            transform: translateX(2px);
+        }
+
+        .venue-res-card-img-wrap {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: #E2E8F0;
+        }
+
+        .venue-res-card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .venue-res-card-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .venue-res-card-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .venue-res-card-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .venue-res-class {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #2A9D8F;
+            background: rgba(42, 157, 143, 0.1);
+            padding: 0.15rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .venue-res-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
         /* Responsive */
         @media (max-width: 900px) {
             .calendar-split {

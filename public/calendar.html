@@ -74,6 +74,21 @@
 
         <!-- Right: Sidebar -->
         <div class="calendar-sidebar">
+            <!-- Venue Reservations Panel -->
+            <div class="venue-reservations-panel" id="venueReservationsPanel">
+                <div class="venue-reservations-header">
+                    <span class="venue-reservations-title">🏟️ 场地预约</span>
+                    <span class="venue-reservations-date" id="reservationDateLabel"></span>
+                </div>
+                <div class="venue-reservation-list" id="venueReservationList">
+                    <div class="event-detail-empty">
+                        <div class="emoji">🏟️</div>
+                        <h3>选择日期查看场地预约</h3>
+                        <p>点击左侧日历中的日期，查看当天场地预约安排</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Monthly Theme Banner -->
             <div class="theme-banner" id="themeBanner">
                 <div class="theme-banner-month" id="themeMonth">MARCH</div>
@@ -95,7 +110,7 @@
     </div>
 </div>
 
-<script src="js/calendar.js"></script>
+<script src="js/calendar.js?v=20260805"></script>
 
 <!-- Floating Notice Pill -->
 <div id="floatingNotice" class="floating-notice-pill" role="alert" aria-live="polite">

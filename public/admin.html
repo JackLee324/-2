@@ -49,6 +49,7 @@
         <button class="tab-btn" data-tab="parkour" onclick="switchTab('parkour')">🌅 晨间跑酷管理</button>
         <button class="tab-btn" data-tab="calendar" onclick="switchTab('calendar')">📅 在线校历管理</button>
         <button class="tab-btn" data-tab="venues" onclick="switchTab('venues')">🏫 场地赋能管理</button>
+        <button class="tab-btn" data-tab="reservations" onclick="switchTab('reservations')">🏟️ 场地预约管理</button>
         <button class="tab-btn" data-tab="security" onclick="switchTab('security')">⚙️ 安全设置</button>
     </div>
 
@@ -376,7 +377,7 @@
         </div>
     </div>
 
-    <script src="js/admin.js"></script>
+    <script src="js/admin.js?v=20260805"></script>
 
     <!-- Global Floating Notice Panel -->
     <div id="noticePanel" class="table-wrap hidden"
@@ -670,7 +671,66 @@
         </div>
     </div>
 
-    <script src="js/admin-venues.js"></script>
+    <!-- ─── Venue Reservations Tab Content ─────────────────────────────────── -->
+    <div id="reservationsSection" class="hidden" style="max-width:1100px;margin:0 auto 3rem;padding:0 1.5rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+
+        <!-- Left: Class Management -->
+        <div style="background:white;border-radius:20px;padding:1.5rem;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <h3 style="color:#1D3557;margin:0 0 1rem;font-size:1rem;">📋 班级管理</h3>
+          <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+            <input type="text" id="newClassName" placeholder="输入班级名称，如 K1" style="flex:1;padding:0.5rem 0.75rem;border-radius:8px;border:1px solid #E2E8F0;font-size:0.85rem;">
+            <button class="btn btn-primary" onclick="addClass()" style="white-space:nowrap;">➕ 添加</button>
+          </div>
+          <div id="classList" style="display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
+          <button class="btn btn-primary" onclick="saveClasses()" style="margin-top:1rem;">💾 保存班级列表</button>
+        </div>
+
+        <!-- Right: Reservation Management -->
+        <div style="background:white;border-radius:20px;padding:1.5rem;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <h3 style="color:#1D3557;margin:0 0 1rem;font-size:1rem;">📝 预约管理</h3>
+          <div style="display:grid;gap:0.75rem;margin-bottom:1rem;">
+            <div>
+              <label style="font-size:0.8rem;color:#64748B;">日期</label>
+              <input type="date" id="resDate" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #E2E8F0;font-size:0.85rem;">
+            </div>
+            <div>
+              <label style="font-size:0.8rem;color:#64748B;">场地</label>
+              <select id="resVenue" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #E2E8F0;font-size:0.85rem;"></select>
+            </div>
+            <div>
+              <label style="font-size:0.8rem;color:#64748B;">班级</label>
+              <select id="resClass" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #E2E8F0;font-size:0.85rem;"></select>
+            </div>
+            <div>
+              <label style="font-size:0.8rem;color:#64748B;">时段 (如 9:00-10:00)</label>
+              <input type="text" id="resTimeSlot" placeholder="9:00-10:00" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #E2E8F0;font-size:0.85rem;">
+            </div>
+          </div>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="btn btn-primary" onclick="addOrUpdateReservation()">💾 添加预约</button>
+            <input type="hidden" id="editResId">
+            <button class="btn btn-slate" onclick="cancelEditReservation()" id="cancelResEditBtn" style="display:none;">取消编辑</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Reservation List -->
+      <div style="background:white;border-radius:20px;padding:1.5rem;margin-top:2rem;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+        <h3 style="color:#1D3557;margin:0 0 1rem;font-size:1rem;">📋 预约记录</h3>
+        <div style="display:flex;gap:0.75rem;margin-bottom:1rem;align-items:center;">
+          <label style="font-size:0.85rem;color:#64748B;">筛选日期:</label>
+          <input type="date" id="resFilterDate" onchange="loadReservations()" style="padding:0.4rem 0.75rem;border-radius:8px;border:1px solid #E2E8F0;font-size:0.85rem;">
+          <button class="btn btn-slate" onclick="loadReservations()" style="white-space:nowrap;">🔄 刷新</button>
+        </div>
+        <div id="reservationList" style="display:grid;gap:0.5rem;">
+          <p style="color:#94A3B8;text-align:center;padding:1.5rem;">选择日期后加载预约记录</p>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/admin-venues.js?v=20260805"></script>
 
 </body>
 

@@ -18,12 +18,13 @@
 
     <!-- Splash V9.0: Antigravity Spring Physics — particles form the emblem on pure white canvas -->
     <canvas id="splash-canvas"></canvas>
-    <div id="enter-hint">点击任意位置进入系统 - Click to Enter</div>
+    <div id="enter-hint">点击任意位置进入网页 - Click to Enter</div>
 
     <!-- Hidden pixel extraction (same as V8.0) -->
-    <div style="position:absolute;left:-9999px;top:-9999px;width:528px;height:280px;overflow:hidden;pointer-events:none;">
-      <img id="logo-src" src="logo.png" style="width:528px;height:280px;opacity:0;" crossorigin="anonymous">
-      <canvas id="logo-canvas" width="528" height="280" style="width:528px;height:280px;"></canvas>
+    <div
+        style="position:absolute;left:-9999px;top:-9999px;width:528px;height:280px;overflow:hidden;pointer-events:none;">
+        <img id="logo-src" src="logo.png" style="width:528px;height:280px;opacity:0;" crossorigin="anonymous">
+        <canvas id="logo-canvas" width="528" height="280" style="width:528px;height:280px;"></canvas>
     </div>
 
     <!-- ═══ End Splash ═══ -->
@@ -44,14 +45,14 @@
     <div class="lightbox" id="lightbox">
         <span class="lightbox-close" onclick="closeLightbox()">×</span>
         <img id="lightboxImg" src="" alt="">
-        <video id="lightboxVideo" src="" controls muted loop playsinline
-            style="display:none;"></video>
+        <video id="lightboxVideo" src="" controls muted loop playsinline style="display:none;"></video>
     </div>
 
     <!-- Parkour Lightbox: full-screen image/video preview -->
     <div class="pk-lightbox" id="pkLightbox" onclick="if(event.target===this)closePkLightbox()">
         <button class="pk-lightbox-close" onclick="closePkLightbox()">×</button>
-        <img id="pkLightboxImg" class="pk-lightbox-img" src="" alt="" style="display:none;" onclick="togglePkLightboxZoom(event)">
+        <img id="pkLightboxImg" class="pk-lightbox-img" src="" alt="" style="display:none;"
+            onclick="togglePkLightboxZoom(event)">
         <video id="pkLightboxVideo" class="pk-lightbox-img" src="" controls playsinline style="display:none;"></video>
         <div class="pk-lightbox-caption" id="pkLightboxCaption"></div>
     </div>
@@ -98,7 +99,7 @@
                 </a>
                 <a href="#sunshine" class="stat">
                     <span class="stat-number">10<span style="font-size:0.55em;">+</span></span>
-                    <span class="stat-label">全能运动空间</span>
+                    <span class="stat-label">户外运动空间</span>
                     <span class="stat-en">10+ Sports Venues</span>
                     <span class="stat-sub">
                         <div class="card-footer">
@@ -109,7 +110,7 @@
                 </a>
                 <a href="#clubs" class="stat">
                     <span class="stat-number">20<span style="font-size:0.55em;">+</span></span>
-                    <span class="stat-label">精英俱乐部</span>
+                    <span class="stat-label">课后课</span>
                     <span class="stat-en">20+ Elite Clubs</span>
                     <span class="stat-sub">
                         <div class="card-footer">
@@ -125,9 +126,9 @@
     <section class="abilities-section" id="abilities">
         <div class="container">
             <div class="section-header fade-in-up">
-                <span class="section-tag">🎯 <span class="zh">4大能力模块</span> <span class="en">| 4 Ability
+                <span class="section-tag">🎯 <span class="zh">4大运动能力</span> <span class="en">| 4 Ability
                         Modules</span></span>
-                <h2 class="section-title"><span class="zh">四大核心能力发展系统</span><br><span class="en"
+                <h2 class="section-title"><span class="zh">体育课堂的四大核心能力</span><br><span class="en"
                         style="font-size:0.5em;font-weight:400;">Four Core Ability Development Systems</span></h2>
                 <p class="section-desc"><span class="zh">致力于支持每一位学生的体育素养发展。我们的课程全面覆盖幼儿体育的四大发展领域 ——
                         身体发展、认知发展、社会性发展与情绪情感发展。并将其转化为四大核心指导原则。</span><br><span class="en">Dedicated to supporting our
@@ -142,7 +143,7 @@
                     <div class="ability-icon">🏃</div>
                     <h4><span class="zh">运动启蒙 (FMS)</span></h4>
                     <p>
-                        <span class="zh">在充满乐趣的活动中掌握跑跳等位移与操控技能，以灵敏与协调为核心，全面促进身体发展 (Physical)。</span>
+                        <span class="zh">在充满乐趣的游戏中掌握跑跳等位移变换与操控技能，以灵敏与协调为核心，全面促进身体发展 (Physical)。</span>
                     </p>
                     <p>
                         <span class="en">Mastering locomotor and manipulative skills through joyful activities, building
@@ -155,7 +156,7 @@
                     <div class="ability-icon">🔍</div>
                     <h4><span class="zh">探索潜能</span></h4>
                     <p>
-                        <span class="zh">引导多感官参与，在自主探索身体与空间边界的过程中，高效激活神经元，深化认知发展 (Cognitive)。</span>
+                        <span class="zh">引导多感官参与，在自主探索身体与空间边界的过程中，高效活跃大脑，深化运动发展 (Cognitive)。</span>
                     </p>
                     <p>
                         <span class="en">Engaging multi-sensory exploration to understand bodily and spatial boundaries,
@@ -168,7 +169,7 @@
                     <div class="ability-icon">🧗</div>
                     <h4><span class="zh">挑战自我</span></h4>
                     <p>
-                        <span class="zh">通过攀岩与适度竞技直面困难，引导孩子学会情绪调节与建立自信，淬炼情绪情感发展 (Emotional)。</span>
+                        <span class="zh">通过攀岩与适度竞技直面困难，引导孩子学会情绪调节与建立自信，锻炼情绪情感发展 (Emotional)。</span>
                     </p>
                     <p>
                         <span class="en">Facing moderate challenges to build confidence and emotional regulation,
@@ -200,7 +201,7 @@
                         Plan</span></span>
                 <h2 class="section-title"><span class="zh">38周课程计划大纲</span><br><span class="en"
                         style="font-size:0.5em;font-weight:400;">38-Week Long Range Plan</span></h2>
-                <p class="section-desc"><span class="zh">透明、专业、系统地向家长公开完整学年实施蓝图</span><br><span class="en">Transparent,
+                <p class="section-desc"><span class="zh">透明、专业、系统地向家长公开完整学年的发展蓝图</span><br><span class="en">Transparent,
                         Professional, Systematic — Proudly sharing the complete annual
                         implementation blueprint with parents</span></p>
             </div>
@@ -999,8 +1000,8 @@
             <!-- Layer 1: Outdoor Activity Tracker -->
             <div class="sun-tracker fade-in-up">
                 <h3 class="sun-tracker-title">
-                    <span class="zh">🌞 全天候户外活动追踪 — 点击体验</span><br>
-                    <span class="en">🌞 All-Day Outdoor Activity Tracker — Click to Experience</span>
+                    <span class="zh">🌞 全天候户外活动</span><br>
+                    <span class="en">🌞 All-Day Outdoor Activity</span>
                 </h3>
                 <div class="sun-slots">
                     <div class="sun-slot" onclick="triggerSunshine(this, 'K班', '10:00-10:30')">
@@ -1146,7 +1147,7 @@
             <!-- Auxiliary Venues Grid -->
             <div class="aux-venues-section fade-in-up">
                 <h3 class="aux-title">
-                    <span class="zh">🗺️ 多元探索空间索引</span><br>
+                    <span class="zh">🗺️ 多元运动发展空间</span><br>
                     <span class="en" style="font-size:0.7em;font-weight:400;">Auxiliary Venue Explorer</span>
                 </h3>
                 <div class="aux-venues-grid" id="auxVenuesGrid"></div>
@@ -1408,8 +1409,8 @@
 
     <!-- ─── Smooth scroll for hero stat cards ─────────────────────────────────── -->
     <script>
-        document.querySelectorAll('.hero-stats a[href^="#"]').forEach(function(card) {
-            card.addEventListener('click', function(e) {
+        document.querySelectorAll('.hero-stats a[href^="#"]').forEach(function (card) {
+            card.addEventListener('click', function (e) {
                 e.preventDefault();
                 var targetId = this.getAttribute('href');
                 var targetEl = document.querySelector(targetId);
@@ -1425,4 +1426,5 @@
     <!-- ═══ End Splash V9.0 ═══ -->
 
 </body>
+
 </html>

@@ -26,13 +26,14 @@ let selectedDate   = null;   // 'YYYY-MM-DD' string
 let beijingToday   = null;   // 'YYYY-MM-DD' string (from server)
 let beijingYear    = null;
 let beijingMonth   = null;
+let venueMap       = {};     // venueId -> venue object for name lookup
 
 // ═══════════════════════════════════════════════
 // INIT — Sync Beijing Time
 // ═══════════════════════════════════════════════
 async function init() {
     await syncBeijingTime();
-    await loadCalendarData();
+    await Promise.all([loadCalendarData(), loadVenueMap()]);
     goToMonth(beijingYear, beijingMonth);
     initFloatingNotice();
 }
@@ -394,14 +395,12 @@ function nextDateStr(dateStr) {
 
 function onDayClick(dateStr) {
     selectedDate = dateStr;
-    // Update selection visual in grid
     document.querySelectorAll('.day-cell').forEach(cell => {
         cell.classList.toggle('selected', cell.dataset.date === dateStr);
     });
-    // Scroll the sidebar card for this date to center
     scrollSidebarToSelected();
-    // Re-render sidebar to update "selected" highlight on cards
     renderEventSidebar();
+    loadVenueReservations(dateStr);
 }
 
 function scrollSidebarToSelected() {
@@ -417,6 +416,63 @@ function scrollSidebarToSelected() {
     }
 }
 
+// ─── Venue Reservations ────────────────────────────────────────────────────────
+async function loadVenueMap() {
+    try {
+        var res = await fetch(BASE_API_URL + '/api/venues?t=' + Date.now());
+        var json = await res.json();
+        if (json.success) {
+            var all = (json.data.coreVenues || []).concat(json.data.auxVenues || []);
+            venueMap = {};
+            all.forEach(function (v) { venueMap[v.id] = v; });
+        }
+    } catch (e) { console.error('Failed to load venue map:', e); }
+}
+
+async function loadVenueReservations(dateStr) {
+    var panel = document.getElementById('venueReservationsPanel');
+    var list = document.getElementById('venueReservationList');
+    var dateLabel = document.getElementById('reservationDateLabel');
+    if (!list || !dateLabel) return;
+
+    // Show the date in the panel header
+    var parts = dateStr.split('-');
+    dateLabel.textContent = parts[1] + '月' + parseInt(parts[2]) + '日';
+
+    try {
+        var res = await fetch(BASE_API_URL + '/api/calendar/reservations?date=' + encodeURIComponent(dateStr));
+        var json = await res.json();
+        if (json.success && json.data.length > 0) {
+            renderVenueReservations(json.data, dateStr);
+        } else {
+            list.innerHTML = '<div class="event-detail-empty"><div class="emoji">🏟️</div><h3>' + dateLabel.textContent + ' 暂无场地预约</h3><p>当天没有场地预约安排</p></div>';
+        }
+    } catch (e) {
+        list.innerHTML = '<div class="event-detail-empty"><div class="emoji">⚠️</div><h3>加载失败</h3><p>' + e.message + '</p></div>';
+    }
+}
+
+function renderVenueReservations(reservations, dateStr) {
+    var list = document.getElementById('venueReservationList');
+    if (!list) return;
+
+    var html = '';
+    reservations.forEach(function (r) {
+        var venue = venueMap[r.venueId] || { name: r.venueId, image: '' };
+        var imgHtml = venue.image ? '<img src="' + venue.image + '" alt="' + venue.name + '" class="venue-res-card-img" onerror="this.style.display=\'none\'">' : '';
+        html += '<div class="venue-res-card">' +
+            '<div class="venue-res-card-img-wrap">' + imgHtml + '</div>' +
+            '<div class="venue-res-card-body">' +
+            '<div class="venue-res-card-name">' + venue.name + '</div>' +
+            '<div class="venue-res-card-info">' +
+            '<span class="venue-res-class">' + r.className + '</span>' +
+            '<span class="venue-res-time">🕐 ' + r.timeSlot + '</span>' +
+            '</div></div></div>';
+    });
+    list.innerHTML = html;
+}
+
+// ─── Event Sidebar ─────────────────────────────────────────────────────────────
 function renderEventSidebar() {
     const list = document.getElementById('eventDetailList');
 
