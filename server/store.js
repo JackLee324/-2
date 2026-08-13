@@ -8,7 +8,8 @@ var fs = require('fs');
 var path = require('path');
 var backup = require('./backup');
 var logger = require('./logger');
-var DATA_DIR = path.join(__dirname, 'data');
+// 支持 DATA_DIR 环境变量覆盖（测试隔离用），默认 server/data
+var DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 
 // 数据 schema 版本：结构变更时递增，用于追踪与兼容
 var SCHEMA_VERSION = 1;

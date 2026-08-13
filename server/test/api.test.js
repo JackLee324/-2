@@ -222,9 +222,22 @@ function runRemainingTests(server) {
   });
 }
 
+// 测试隔离：使用临时数据目录，避免污染真实 server/data
+var os = require('os');
+var fs = require('fs');
+var path = require('path');
+var TEST_DATA_DIR = path.join(os.tmpdir(), 'cms-test-data-' + process.pid);
+fs.mkdirSync(TEST_DATA_DIR, { recursive: true });
+process.env.DATA_DIR = TEST_DATA_DIR;
+
 // Start server on test port
 var app = require('../index.js');
 app.set('port', 3099);
 var server = app.listen(3099, function () {
   runTests();
+});
+
+// 测试结束后清理临时目录
+process.on('exit', function () {
+  try { fs.rmSync(TEST_DATA_DIR, { recursive: true, force: true }); } catch (e) {}
 });

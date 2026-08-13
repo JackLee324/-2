@@ -3,7 +3,7 @@
 var fs = require('fs');
 var path = require('path');
 
-var ADMIN_AUTH_FILE = path.join(__dirname, 'data', 'admin_auth.json');
+var ADMIN_AUTH_FILE = path.join(process.env.DATA_DIR || path.join(__dirname, 'data'), 'admin_auth.json');
 
 function loadAdminAuth() {
   try {

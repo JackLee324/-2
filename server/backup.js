@@ -4,7 +4,8 @@ var fs = require('fs');
 var path = require('path');
 
 var BACKUP_DIR = path.join(__dirname, '..', 'backups');
-var DATA_DIR = path.join(__dirname, 'data');
+// 支持 DATA_DIR 环境变量覆盖（测试隔离用），默认 server/data
+var DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 var MAX_FILE_SNAPSHOTS = 20; // 每个数据文件保留最近 20 份
 var MAX_FULL_SNAPSHOTS = 5;  // 保留最近 5 份全量快照
 
