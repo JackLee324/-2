@@ -41,10 +41,14 @@ router.put('/curriculum/:tab', auth.validateAdminSession, function (req, res) {
     if (!Array.isArray(rows)) {
       return res.status(400).json({ success: false, error: 'Body must be an array of rows' });
     }
-    var data = store.read('curriculum');
-    data[tab] = rows;
-    store.write('curriculum', data);
-    res.json({ success: true, message: tab + ' updated with ' + rows.length + ' rows' });
+    store.mutate('curriculum', function (data) {
+      data[tab] = rows;
+      return data;
+    }).then(function (newData) {
+      res.json({ success: true, message: tab + ' updated with ' + newData[tab].length + ' rows' });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -61,7 +65,6 @@ router.post('/curriculum/:tab', auth.validateAdminSession, function (req, res) {
     if (!newRow || !newRow.week || !newRow.month || !newRow.unit || !newRow.subunit) {
       return res.status(400).json({ success: false, error: 'Missing required fields: week, month, unit, subunit' });
     }
-    var data = store.read('curriculum');
     var cleanRow = {
       week: String(newRow.week),
       month: String(newRow.month),
@@ -74,9 +77,14 @@ router.post('/curriculum/:tab', auth.validateAdminSession, function (req, res) {
     };
     if (newRow.holiday) cleanRow.holiday = String(newRow.holiday);
     if (newRow.semester) cleanRow.semester = String(newRow.semester);
-    data[tab].push(cleanRow);
-    store.write('curriculum', data);
-    res.json({ success: true, row: cleanRow });
+    store.mutate('curriculum', function (data) {
+      data[tab].push(cleanRow);
+      return data;
+    }).then(function () {
+      res.json({ success: true, row: cleanRow });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -90,16 +98,20 @@ router.delete('/curriculum/:tab/:week', auth.validateAdminSession, function (req
     if (!VALID_TABS.includes(tab)) {
       return res.status(400).json({ success: false, error: 'Invalid tab' });
     }
-    var data = store.read('curriculum');
-    var idx = data[tab].findIndex(function (row) {
-      return row.week === week || (row.holiday && row.holiday === week) || (row.semester && row.semester === week);
+    var deleted = null;
+    store.mutate('curriculum', function (data) {
+      var idx = data[tab].findIndex(function (row) {
+        return row.week === week || (row.holiday && row.holiday === week) || (row.semester && row.semester === week);
+      });
+      if (idx === -1) return data;
+      deleted = data[tab].splice(idx, 1)[0];
+      return data;
+    }).then(function () {
+      if (!deleted) return res.status(404).json({ success: false, error: 'Row not found' });
+      res.json({ success: true, deleted: deleted });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
     });
-    if (idx === -1) {
-      return res.status(404).json({ success: false, error: 'Row not found' });
-    }
-    var deleted = data[tab].splice(idx, 1)[0];
-    store.write('curriculum', data);
-    res.json({ success: true, deleted: deleted });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

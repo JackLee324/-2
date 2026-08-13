@@ -15,7 +15,8 @@ function makeStorage(subdir, prefix) {
     },
     filename: function (req, file, cb) {
       var ext = path.extname(file.originalname).toLowerCase();
-      cb(null, prefix + Date.now() + ext);
+      // 时间戳 + 随机后缀，避免同一毫秒上传同名扩展文件时相互覆盖
+      cb(null, prefix + Date.now() + '.' + Math.random().toString(36).slice(2, 8) + ext);
     }
   });
 }

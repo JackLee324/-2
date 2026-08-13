@@ -26,8 +26,11 @@ router.put('/parkour', auth.validateAdminSession, function (req, res) {
     if (!Array.isArray(rows)) {
       return res.status(400).json({ success: false, error: 'Body must be an array of parkour rows' });
     }
-    store.write('morning_parkour', rows);
-    res.json({ success: true, message: 'Parkour updated with ' + rows.length + ' rows' });
+    store.write('morning_parkour', rows).then(function () {
+      res.json({ success: true, message: 'Parkour updated with ' + rows.length + ' rows' });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -51,7 +54,7 @@ router.post('/upload-parkour', auth.validateAdminSession, upload.uploadParkourIm
   }
 });
 
-// DELETE /api/parkour-image — 路径遍历校验（修复 #3）
+// DELETE /api/parkour-image — 路径遍历校验
 router.delete('/parkour-image', auth.validateAdminSession, function (req, res) {
   try {
     var imagePath = req.body.imagePath;
@@ -93,10 +96,14 @@ router.post('/upload-parkour-video', auth.validateAdminSession, upload.uploadPar
       originalName: req.file.originalname,
       uploadTime: new Date().toISOString()
     };
-    var videos = store.read('parkour_videos');
-    videos.unshift(item);
-    store.write('parkour_videos', videos);
-    res.json({ success: true, item: item });
+    store.mutate('parkour_videos', function (videos) {
+      videos.unshift(item);
+      return videos;
+    }).then(function () {
+      res.json({ success: true, item: item });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -106,16 +113,22 @@ router.post('/upload-parkour-video', auth.validateAdminSession, upload.uploadPar
 router.delete('/parkour-video/:id', auth.validateAdminSession, function (req, res) {
   try {
     var id = req.params.id;
-    var videos = store.read('parkour_videos');
-    var idx = videos.findIndex(function (v) { return v.id === id; });
-    if (idx === -1) {
-      return res.status(404).json({ success: false, error: 'Video not found' });
-    }
-    var deleted = videos.splice(idx, 1)[0];
-    store.write('parkour_videos', videos);
-    var fullPath = path.join(PUBLIC_DIR, 'assets', 'parkour-videos', deleted.filename);
-    if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
-    res.json({ success: true, deleted: deleted });
+    var deleted = null;
+    store.mutate('parkour_videos', function (videos) {
+      var idx = videos.findIndex(function (v) { return v.id === id; });
+      if (idx === -1) return videos;
+      deleted = videos.splice(idx, 1)[0];
+      return videos;
+    }).then(function () {
+      if (!deleted) return res.status(404).json({ success: false, error: 'Video not found' });
+      var fullPath = path.join(PUBLIC_DIR, 'assets', 'parkour-videos', deleted.filename);
+      if (fs.existsSync(fullPath)) {
+        try { fs.unlinkSync(fullPath); } catch (e) { console.error('[parkour] unlink failed:', e.message); }
+      }
+      res.json({ success: true, deleted: deleted });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

@@ -47,7 +47,6 @@ router.post('/calendar/event', auth.validateAdminSession, function (req, res) {
     if (!VALID_TYPES.includes(type)) {
       return res.status(400).json({ success: false, error: 'Invalid type. Use: ' + VALID_TYPES.join(', ') });
     }
-    var cal = store.read('academic_calendar');
     var newEvent = {
       id: 'evt' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       date: date,
@@ -59,31 +58,41 @@ router.post('/calendar/event', auth.validateAdminSession, function (req, res) {
       backgroundColor: backgroundColor || EVENT_TYPE_COLORS[type].bg || '#999999',
       textColor: textColor || EVENT_TYPE_COLORS[type].text || '#ffffff'
     };
-    cal.events.push(newEvent);
-    cal.events.sort(function (a, b) { return a.date.localeCompare(b.date); });
-    store.write('academic_calendar', cal);
-    res.json({ success: true, event: newEvent });
+    store.mutate('academic_calendar', function (cal) {
+      cal.events.push(newEvent);
+      cal.events.sort(function (a, b) { return a.date.localeCompare(b.date); });
+      return cal;
+    }).then(function () {
+      res.json({ success: true, event: newEvent });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// PUT /api/calendar/event/:id — 更新后排序（修复 #10）
+// PUT /api/calendar/event/:id
 router.put('/calendar/event/:id', auth.validateAdminSession, function (req, res) {
   try {
     var id = req.params.id;
-    var cal = store.read('academic_calendar');
-    var idx = cal.events.findIndex(function (e) { return e.id === id; });
-    if (idx === -1) {
-      return res.status(404).json({ success: false, error: 'Event not found' });
-    }
     if (req.body.type && !VALID_TYPES.includes(req.body.type)) {
       return res.status(400).json({ success: false, error: 'Invalid type' });
     }
-    cal.events[idx] = Object.assign({}, cal.events[idx], req.body, { id: id });
-    cal.events.sort(function (a, b) { return a.date.localeCompare(b.date); });
-    store.write('academic_calendar', cal);
-    res.json({ success: true, event: cal.events[idx] });
+    var updatedEvent = null;
+    store.mutate('academic_calendar', function (cal) {
+      var idx = cal.events.findIndex(function (e) { return e.id === id; });
+      if (idx === -1) return cal;
+      cal.events[idx] = Object.assign({}, cal.events[idx], req.body, { id: id });
+      cal.events.sort(function (a, b) { return a.date.localeCompare(b.date); });
+      updatedEvent = cal.events[idx];
+      return cal;
+    }).then(function () {
+      if (!updatedEvent) return res.status(404).json({ success: false, error: 'Event not found' });
+      res.json({ success: true, event: updatedEvent });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -93,14 +102,18 @@ router.put('/calendar/event/:id', auth.validateAdminSession, function (req, res)
 router.delete('/calendar/event/:id', auth.validateAdminSession, function (req, res) {
   try {
     var id = req.params.id;
-    var cal = store.read('academic_calendar');
-    var idx = cal.events.findIndex(function (e) { return e.id === id; });
-    if (idx === -1) {
-      return res.status(404).json({ success: false, error: 'Event not found' });
-    }
-    var deleted = cal.events.splice(idx, 1)[0];
-    store.write('academic_calendar', cal);
-    res.json({ success: true, deleted: deleted });
+    var deleted = null;
+    store.mutate('academic_calendar', function (cal) {
+      var idx = cal.events.findIndex(function (e) { return e.id === id; });
+      if (idx === -1) return cal;
+      deleted = cal.events.splice(idx, 1)[0];
+      return cal;
+    }).then(function () {
+      if (!deleted) return res.status(404).json({ success: false, error: 'Event not found' });
+      res.json({ success: true, deleted: deleted });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -113,10 +126,14 @@ router.put('/calendar/themes', auth.validateAdminSession, function (req, res) {
     if (!Array.isArray(themes)) {
       return res.status(400).json({ success: false, error: 'Themes must be an array' });
     }
-    var cal = store.read('academic_calendar');
-    cal.monthlyThemes = themes;
-    store.write('academic_calendar', cal);
-    res.json({ success: true, themes: cal.monthlyThemes });
+    store.mutate('academic_calendar', function (cal) {
+      cal.monthlyThemes = themes;
+      return cal;
+    }).then(function (newCal) {
+      res.json({ success: true, themes: newCal.monthlyThemes });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -131,14 +148,18 @@ router.put('/calendar/notice', auth.validateAdminSession, function (req, res) {
     if (type && !VALID_NOTICE_TYPES.includes(type)) {
       return res.status(400).json({ success: false, error: 'Invalid type. Use: ' + VALID_NOTICE_TYPES.join(', ') });
     }
-    var cal = store.read('academic_calendar');
-    cal.globalNotice = {
-      isActive: Boolean(isActive),
-      type: VALID_NOTICE_TYPES.includes(type) ? type : 'info',
-      content: String(content || '')
-    };
-    store.write('academic_calendar', cal);
-    res.json({ success: true, globalNotice: cal.globalNotice });
+    store.mutate('academic_calendar', function (cal) {
+      cal.globalNotice = {
+        isActive: Boolean(isActive),
+        type: VALID_NOTICE_TYPES.includes(type) ? type : 'info',
+        content: String(content || '')
+      };
+      return cal;
+    }).then(function (newCal) {
+      res.json({ success: true, globalNotice: newCal.globalNotice });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -163,10 +184,14 @@ router.put('/calendar/classes', auth.validateAdminSession, function (req, res) {
     if (!Array.isArray(classes)) {
       return res.status(400).json({ success: false, error: 'Classes must be an array' });
     }
-    var cal = store.read('academic_calendar');
-    cal.classes = classes;
-    store.write('academic_calendar', cal);
-    res.json({ success: true, classes: cal.classes });
+    store.mutate('academic_calendar', function (cal) {
+      cal.classes = classes;
+      return cal;
+    }).then(function (newCal) {
+      res.json({ success: true, classes: newCal.classes });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -198,8 +223,6 @@ router.post('/calendar/reservation', auth.validateAdminSession, function (req, r
     if (!date || !venueId || !className || !timeSlot) {
       return res.status(400).json({ success: false, error: 'date, venueId, className, and timeSlot are required' });
     }
-    var cal = store.read('academic_calendar');
-    if (!cal.venueReservations) cal.venueReservations = [];
     var newRes = {
       id: 'res' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       date: date,
@@ -207,12 +230,18 @@ router.post('/calendar/reservation', auth.validateAdminSession, function (req, r
       className: className,
       timeSlot: timeSlot
     };
-    cal.venueReservations.push(newRes);
-    cal.venueReservations.sort(function (a, b) {
-      return a.date.localeCompare(b.date) || a.timeSlot.localeCompare(b.timeSlot);
+    store.mutate('academic_calendar', function (cal) {
+      if (!cal.venueReservations) cal.venueReservations = [];
+      cal.venueReservations.push(newRes);
+      cal.venueReservations.sort(function (a, b) {
+        return a.date.localeCompare(b.date) || a.timeSlot.localeCompare(b.timeSlot);
+      });
+      return cal;
+    }).then(function () {
+      res.json({ success: true, reservation: newRes });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
     });
-    store.write('academic_calendar', cal);
-    res.json({ success: true, reservation: newRes });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -222,18 +251,23 @@ router.post('/calendar/reservation', auth.validateAdminSession, function (req, r
 router.put('/calendar/reservation/:id', auth.validateAdminSession, function (req, res) {
   try {
     var id = req.params.id;
-    var cal = store.read('academic_calendar');
-    var reservations = cal.venueReservations || [];
-    var idx = reservations.findIndex(function (r) { return r.id === id; });
-    if (idx === -1) {
-      return res.status(404).json({ success: false, error: 'Reservation not found' });
-    }
-    reservations[idx] = Object.assign({}, reservations[idx], req.body, { id: id });
-    reservations.sort(function (a, b) {
-      return a.date.localeCompare(b.date) || a.timeSlot.localeCompare(b.timeSlot);
+    var updatedRes = null;
+    store.mutate('academic_calendar', function (cal) {
+      var reservations = cal.venueReservations || [];
+      var idx = reservations.findIndex(function (r) { return r.id === id; });
+      if (idx === -1) return cal;
+      reservations[idx] = Object.assign({}, reservations[idx], req.body, { id: id });
+      reservations.sort(function (a, b) {
+        return a.date.localeCompare(b.date) || a.timeSlot.localeCompare(b.timeSlot);
+      });
+      updatedRes = reservations[idx];
+      return cal;
+    }).then(function () {
+      if (!updatedRes) return res.status(404).json({ success: false, error: 'Reservation not found' });
+      res.json({ success: true, reservation: updatedRes });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
     });
-    store.write('academic_calendar', cal);
-    res.json({ success: true, reservation: reservations[idx] });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -243,15 +277,19 @@ router.put('/calendar/reservation/:id', auth.validateAdminSession, function (req
 router.delete('/calendar/reservation/:id', auth.validateAdminSession, function (req, res) {
   try {
     var id = req.params.id;
-    var cal = store.read('academic_calendar');
-    var reservations = cal.venueReservations || [];
-    var idx = reservations.findIndex(function (r) { return r.id === id; });
-    if (idx === -1) {
-      return res.status(404).json({ success: false, error: 'Reservation not found' });
-    }
-    var deleted = reservations.splice(idx, 1)[0];
-    store.write('academic_calendar', cal);
-    res.json({ success: true, deleted: deleted });
+    var deleted = null;
+    store.mutate('academic_calendar', function (cal) {
+      var reservations = cal.venueReservations || [];
+      var idx = reservations.findIndex(function (r) { return r.id === id; });
+      if (idx === -1) return cal;
+      deleted = reservations.splice(idx, 1)[0];
+      return cal;
+    }).then(function () {
+      if (!deleted) return res.status(404).json({ success: false, error: 'Reservation not found' });
+      res.json({ success: true, deleted: deleted });
+    }).catch(function (err) {
+      res.status(500).json({ success: false, error: err.message });
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

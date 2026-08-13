@@ -10,3 +10,5 @@ v6-*.png
 v7-*.png
 .env
 .superpowers/
+backups/
+logs/

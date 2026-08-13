@@ -35,4 +35,27 @@ setInterval(function () {
   });
 }, 300000);
 
-module.exports = { validateAdminSession: validateAdminSession, rateLimitLogin: rateLimitLogin };
+// 通用速率限制工厂：同一 IP 在 windowMs 内最多 max 次
+function makeRateLimit(max, windowMs) {
+  var attempts = {};
+  return function rateLimit(req, res, next) {
+    var ip = req.ip || req.connection.remoteAddress || 'unknown';
+    var now = Date.now();
+    if (!attempts[ip]) attempts[ip] = [];
+    attempts[ip] = attempts[ip].filter(function (t) { return now - t < windowMs; });
+    if (attempts[ip].length >= max) {
+      return res.status(429).json({ success: false, error: '请求过于频繁，请稍后再试' });
+    }
+    attempts[ip].push(now);
+    next();
+  };
+}
+
+// 写接口通用限流：同一 IP 60s 内最多 120 次（比登录更宽松）
+var rateLimitWrite = makeRateLimit(120, 60000);
+
+module.exports = {
+  validateAdminSession: validateAdminSession,
+  rateLimitLogin: rateLimitLogin,
+  rateLimitWrite: rateLimitWrite
+};

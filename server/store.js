@@ -1,7 +1,17 @@
-// server/store.js — 统一 JSON 数据读写，Promise 链原子写入
+// server/store.js — 统一 JSON 数据读写
+// 特性：
+//  1. 写前自动备份（backup.snapshotFile）
+//  2. 原子写入（临时文件 + rename）
+//  3. mutate() 提供原子 read-modify-write，消除竞态
+//  4. 队列不会被单次失败「毒化」（失败后后续写仍可执行）
 var fs = require('fs');
 var path = require('path');
+var backup = require('./backup');
+var logger = require('./logger');
 var DATA_DIR = path.join(__dirname, 'data');
+
+// 数据 schema 版本：结构变更时递增，用于追踪与兼容
+var SCHEMA_VERSION = 1;
 
 var defaults = {
   curriculum: { prek: [], k: [], climbing: [] },
@@ -19,6 +29,25 @@ function file(name) {
   return path.join(DATA_DIR, name + '.json');
 }
 
+// 内部：纯内存读取 + 默认字段补齐（无写副作用）
+function readInMemory(name) {
+  var f = file(name);
+  var dir = path.dirname(f);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  if (!fs.existsSync(f)) {
+    return JSON.parse(JSON.stringify(defaults[name] || {}));
+  }
+  var data = JSON.parse(fs.readFileSync(f, 'utf8'));
+  var def = defaults[name];
+  if (def && typeof def === 'object' && !Array.isArray(def)) {
+    Object.keys(def).forEach(function (key) {
+      if (!(key in data)) data[key] = JSON.parse(JSON.stringify(def[key]));
+    });
+  }
+  return data;
+}
+
+// 对外读取：同步，带默认字段补齐；首次缺失时落盘
 function read(name) {
   var f = file(name);
   var dir = path.dirname(f);
@@ -34,44 +63,68 @@ function read(name) {
   var def = defaults[name];
   if (def && typeof def === 'object' && !Array.isArray(def)) {
     var changed = false;
+    var addedFields = [];
     Object.keys(def).forEach(function (key) {
       if (!(key in data)) {
         data[key] = JSON.parse(JSON.stringify(def[key]));
         changed = true;
+        addedFields.push(key);
       }
     });
     if (changed) {
+      logger.info('auto-migrate', { file: name, addedFields: addedFields, schemaVersion: SCHEMA_VERSION });
       fs.writeFile(f, JSON.stringify(data, null, 2), 'utf8', function (err) {
-        if (err) console.error('[store] auto-migrate write failed for ' + name + ':', err.message);
+        if (err) logger.error('auto-migrate write failed', { file: name, message: err.message });
       });
     }
   }
   return data;
 }
 
-function write(name, data) {
-  var f = file(name);
+// 内部：原子写入（临时文件 + rename），写前备份
+function writeRaw(name, data) {
   return new Promise(function (resolve, reject) {
-    if (!queues[name]) queues[name] = Promise.resolve();
-    queues[name] = queues[name].then(function () {
-      return new Promise(function (res, rej) {
-        var tmp = f + '.tmp.' + Date.now() + '.' + Math.random().toString(36).slice(2, 8);
-        var dir = path.dirname(f);
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        fs.writeFile(tmp, JSON.stringify(data, null, 2), 'utf8', function (err) {
-          if (err) return rej(err);
-          fs.rename(tmp, f, function (err2) {
-            if (err2) return rej(err2);
-            res();
-          });
-        });
+    backup.snapshotFile(name); // 写前快照「修改前」状态
+    var f = file(name);
+    var tmp = f + '.tmp.' + Date.now() + '.' + Math.random().toString(36).slice(2, 8);
+    var dir = path.dirname(f);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFile(tmp, JSON.stringify(data, null, 2), 'utf8', function (err) {
+      if (err) return reject(err);
+      fs.rename(tmp, f, function (err2) {
+        if (err2) return reject(err2);
+        resolve();
       });
-    }).catch(function (err) {
-      console.error('[store] Write failed for ' + name + ':', err.message);
-      throw err;
-    }).then(function () { return undefined; });
-    return queues[name];
+    });
   });
 }
 
-module.exports = { read: read, write: write };
+// 队列调度：失败不毒化队列，返回值供调用者 await/catch
+function enqueue(name, task) {
+  if (!queues[name]) queues[name] = Promise.resolve();
+  var p = queues[name].then(task);
+  queues[name] = p.catch(function (err) {
+    console.error('[store] task failed for ' + name + ':', err.message);
+  });
+  return p;
+}
+
+// 对外写入：异步，队列串行 + 原子 + 备份
+function write(name, data) {
+  return enqueue(name, function () {
+    return writeRaw(name, data);
+  });
+}
+
+// 原子 read-modify-write：读取、修改、写入全程在队列内，消除竞态
+// updaterFn(data) 返回新数据；resolve 为新数据（未变时返回原数据）
+function mutate(name, updaterFn) {
+  return enqueue(name, function () {
+    var data = readInMemory(name);
+    var result = updaterFn(data);
+    var newData = (result === undefined) ? data : result;
+    return writeRaw(name, newData).then(function () { return newData; });
+  });
+}
+
+module.exports = { read: read, write: write, mutate: mutate };
