@@ -6,9 +6,14 @@
 
 ## 快速启动
 
+> **项目位置：`~/Developer/cms`**
+> 请勿把本项目移回 iCloud 同步目录（桌面 / 文稿）。iCloud 的"优化储存空间"
+> 会把文件内容抽回云端只留占位符，导致页面样式与数据静默失效（接口返回 200 但内容为空）。
+> 该问题已于 2026-09-15 排查并修复，项目已迁出同步目录。
+
 ```bash
 # 1. 进入项目目录
-cd cms
+cd ~/Developer/cms
 
 # 2. 安装依赖（仅需 Node.js，无需数据库）
 npm install
@@ -25,6 +30,18 @@ npm start
 ⚙️  Admin panel: http://localhost:3000/admin
 📁 Data file:   /.../cms/server/data/curriculum.json
 ```
+
+### 日常运维命令
+
+```bash
+npm start        # 启动服务
+npm test         # API 冒烟测试（15 项，使用临时数据目录，不碰真实数据）
+npm run healthcheck   # 存储层巡检：文件内容是否被抽走、数据能否正常读取
+```
+
+**建议**：网站出现"样式丢失 / 按钮失灵但没有任何报错"时，先跑
+`npm run healthcheck`。这类静默故障的特征是文件大小正常但内容读不出来，
+不会在前端报错，巡检能在你察觉之前发现。
 
 ---
 
@@ -182,16 +199,29 @@ cms/
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
 | `PORT` | `3000` | 服务器端口 |
-| `ADMIN_TOKEN` | 内置默认值 | 管理员鉴权 Token |
-| `ADMIN_PASSWORD` | 内置默认值 | 管理员登录密码 |
+| `ADMIN_TOKEN` | 读取 `server/data/admin_auth.json` | 管理员鉴权 Token |
+| `ADMIN_PASSWORD` | 读取 `server/data/admin_auth.json` | 管理员登录密码 |
+| `DATA_DIR` | `server/data` | 数据目录（测试用，可不设） |
+
+**凭据说明（重要）**
+
+- 凭据**只**存放在 `server/data/admin_auth.json`，该文件已加入 `.gitignore`，不会入库。
+- 优先级：环境变量 > `admin_auth.json` > 首次启动自动生成随机强凭据。
+- 代码中**没有任何硬编码默认口令**：若凭据文件缺失或损坏，服务会自动生成一组
+  随机凭据写入该文件，并把新密码打印在启动日志中（不再静默降级为弱口令）。
+- 修改密码：登录后台 → 「⚙️ 安全设置」。修改后会同时更新 `admin_auth.json` 中的
+  密码与 Token，原有 Token 立即失效。
 
 ## 安全加固
 
 - **路径遍历防护**：DELETE /api/parkour-image 校验路径必须在 `public/` 目录内
-- **速率限制**：登录接口同 IP 60 秒内最多 5 次尝试
+- **速率限制**：登录接口同 IP 60 秒内最多 5 次尝试；写接口 60 秒内最多 120 次
 - **输入验证**：PUT /api/gallery/:id 白名单字段（仅 `caption`、`date`）
 - **原子写入**：所有 JSON 写操作采用临时文件 + rename，崩溃不丢数据
-- **凭据外置**：密码和 Token 通过 `config.js` 管理，环境变量可覆盖
+- **凭据不入库**：`admin_auth.json` 由 `.gitignore` 排除；历史提交中出现过的旧凭据
+  已于 2026-09-15 轮换
+- **空数据防线**：数据文件读出空内容时显式报错，不会被当成空数据回写覆盖真实内容；
+  空文件也不会进入备份快照
 
 ---
 
@@ -205,3 +235,25 @@ A: 在 `public/index.html` 中搜索 `formatSubunit` 函数，可自定义解析
 
 **Q: 如何恢复原始数据？**
 A: 删除 `server/data/curriculum.json`，重启服务器会自动生成默认数据。
+
+**Q: 忘记后台密码了？**
+A: 直接查看 `server/data/admin_auth.json` 里的 `adminPassword` 字段。
+若想重新生成一组随机强密码，删除该文件后重启服务，新密码会打印在启动日志中。
+
+**Q: 页面样式丢失、按钮点不动，但没有任何报错？**
+A: 这是典型的"静默故障"，先跑 `npm run healthcheck`。
+最常见原因是项目被放进了 iCloud 同步目录，文件内容被抽回云端。
+按巡检输出里的提示执行 `brctl download "<文件路径>"` 即可取回，
+并把项目移出同步目录（当前已在 `~/Developer/cms`，请保持）。
+
+**Q: 数据被误改了，怎么回滚？**
+A: 每次写操作前都会自动快照到 `backups/`（每文件保留 20 份，启动时另存全量快照 5 份）。
+
+```bash
+# 看有哪些可回滚的时间点
+ls -lt ~/Developer/cms/backups/ | head
+
+# 回滚单个文件到某个时间点
+cp ~/Developer/cms/backups/academic_calendar.<时间戳>.json \
+   ~/Developer/cms/server/data/academic_calendar.json
+```

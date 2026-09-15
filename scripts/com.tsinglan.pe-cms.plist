@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  com.tsinglan.pe-cms.plist — 开机自启 / 崩溃自动重启
+
+  安装：
+    cp ~/Developer/cms/scripts/com.tsinglan.pe-cms.plist ~/Library/LaunchAgents/
+    launchctl load  ~/Library/LaunchAgents/com.tsinglan.pe-cms.plist
+
+  卸载：
+    launchctl unload ~/Library/LaunchAgents/com.tsinglan.pe-cms.plist
+    rm ~/Library/LaunchAgents/com.tsinglan.pe-cms.plist
+
+  查看状态 / 日志：
+    launchctl list | grep pe-cms
+    tail -f ~/Developer/cms/logs/server.out
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.tsinglan.pe-cms</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/jacklee/Developer/cms/scripts/start-server.sh</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/jacklee/Developer/cms</string>
+
+    <!-- 开机自启 + 进程退出后自动拉起 -->
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+
+    <!-- 崩溃后重启的节流：最短 10 秒一次，避免疯狂重启刷日志 -->
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+
+    <key>StandardOutPath</key>
+    <string>/Users/jacklee/Developer/cms/logs/server.out</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/jacklee/Developer/cms/logs/server.err</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>NODE_ENV</key>
+        <string>production</string>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+</plist>
