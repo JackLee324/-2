@@ -26,6 +26,12 @@ function snapshotFile(name) {
     ensureDir();
     var dest = path.join(BACKUP_DIR, name + '.' + stamp() + '.json');
     fs.copyFileSync(src, dest);
+    // 数据丢失防线：源文件为空/读不到时，绝不能把「空文件」当成有效备份留下，
+    // 否则备份链会静默退化成一堆 0 字节文件（磁盘故障时可复现）
+    if (fs.statSync(dest).size === 0) {
+      fs.unlinkSync(dest);
+      throw new Error('源数据读取为空，已丢弃该次空备份: ' + src);
+    }
     pruneFile(name);
   } catch (err) {
     // 备份失败不阻断主流程，仅记录（避免备份逻辑拖垮业务）
@@ -56,7 +62,14 @@ function snapshotAll() {
     var files = fs.readdirSync(DATA_DIR);
     files.forEach(function (f) {
       if (f.slice(-5) === '.json') {
-        fs.copyFileSync(path.join(DATA_DIR, f), path.join(dest, f));
+        var src = path.join(DATA_DIR, f);
+        var dst = path.join(dest, f);
+        fs.copyFileSync(src, dst);
+        // 同上：空文件不进全量快照，避免留下 0 文件的「假基线」
+        if (fs.statSync(dst).size === 0) {
+          fs.unlinkSync(dst);
+          console.error('[backup] 跳过空数据文件（源读取异常）: ' + src);
+        }
       }
     });
     pruneFull();

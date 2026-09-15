@@ -31,6 +31,18 @@ function file(name) {
 }
 
 // 内部：纯内存读取 + 默认字段补齐（无写副作用）
+// 读取数据文件内容，并把「空内容」识别为故障而不是合法数据。
+// 背景：磁盘/云盘异常时文件可以有正常大小却读出 0 字节，若放任下去会
+// 被 JSON.parse 报成难以定位的 "Unexpected end of JSON input"，
+// 更糟的是可能被当成空数据回写、覆盖真实内容。这里显式拦截并给出可操作提示。
+function readRaw(name, f) {
+  var raw = fs.readFileSync(f, 'utf8');
+  if (!raw || !raw.trim()) {
+    throw new Error('数据文件读取为空，疑似存储层异常（未回写、未覆盖原文件）: ' + f);
+  }
+  return raw;
+}
+
 function readInMemory(name) {
   var f = file(name);
   var dir = path.dirname(f);
@@ -38,7 +50,7 @@ function readInMemory(name) {
   if (!fs.existsSync(f)) {
     return JSON.parse(JSON.stringify(defaults[name] || {}));
   }
-  var data = JSON.parse(fs.readFileSync(f, 'utf8'));
+  var data = JSON.parse(readRaw(name, f));
   var def = defaults[name];
   if (def && typeof def === 'object' && !Array.isArray(def)) {
     Object.keys(def).forEach(function (key) {
@@ -58,7 +70,7 @@ function read(name) {
     fs.writeFileSync(f, JSON.stringify(d, null, 2), 'utf8');
     return JSON.parse(JSON.stringify(d));
   }
-  var raw = fs.readFileSync(f, 'utf8');
+  var raw = readRaw(name, f);
   var data = JSON.parse(raw);
   // 向后兼容：自动补上 defaults 中定义但数据文件缺失的顶层字段
   var def = defaults[name];

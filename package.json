@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "node server/index.js",
-    "test": "node server/test/api.test.js"
+    "test": "node server/test/api.test.js",
+    "healthcheck": "node server/test/healthcheck.js"
   },
   "dependencies": {
     "compression": "^1.8.1",

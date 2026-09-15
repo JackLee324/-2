@@ -3,7 +3,9 @@ var http = require('http');
 var assert = require('assert');
 
 var BASE = 'http://localhost:3099';
-var ADMIN_TOKEN = 'tsinglan_pe_secure_token_2026';
+// 凭据不写死在测试里：统一从 config 读取（即被测服务实际使用的那一份）
+var ADMIN_TOKEN = '';
+var ADMIN_PASSWORD = '';
 var passed = 0;
 var failed = 0;
 
@@ -198,7 +200,7 @@ function runRemainingTests(server) {
     });
 
     // 6. Login
-    post('/api/admin/login', { password: '123456' }, function (code, body) {
+    post('/api/admin/login', { password: ADMIN_PASSWORD }, function (code, body) {
       test('POST /api/admin/login correct password returns token', function () {
         assert.strictEqual(code, 200);
         var data = JSON.parse(body);
@@ -233,6 +235,12 @@ process.env.DATA_DIR = TEST_DATA_DIR;
 // Start server on test port
 var app = require('../index.js');
 app.set('port', 3099);
+
+// 取被测服务实际生效的凭据（同一进程、同一 config 实例）
+var config = require('../config');
+ADMIN_PASSWORD = config.ADMIN_PASSWORD;
+ADMIN_TOKEN = config.ADMIN_TOKEN;
+
 var server = app.listen(3099, function () {
   runTests();
 });

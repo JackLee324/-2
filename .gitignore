@@ -12,3 +12,7 @@ v7-*.png
 .superpowers/
 backups/
 logs/
+
+# 认证凭据：绝不入库（泄漏即等于后台被长期控制）
+# 首次启动会自动生成；如需重置，删除本文件后重启服务
+server/data/admin_auth.json
