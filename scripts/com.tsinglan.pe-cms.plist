@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!--
-  com.tsinglan.pe-cms.plist — 开机自启 / 崩溃自动重启
-
-  安装：
-    cp ~/Developer/cms/scripts/com.tsinglan.pe-cms.plist ~/Library/LaunchAgents/
-    launchctl load  ~/Library/LaunchAgents/com.tsinglan.pe-cms.plist
-
-  卸载：
-    launchctl unload ~/Library/LaunchAgents/com.tsinglan.pe-cms.plist
-    rm ~/Library/LaunchAgents/com.tsinglan.pe-cms.plist
-
-  查看状态 / 日志：
-    launchctl list | grep pe-cms
-    tail -f ~/Developer/cms/logs/server.out
--->
 <plist version="1.0">
 <dict>
+    <!--
+      com.tsinglan.pe-cms — 开机自启 / 崩溃自动重启
+
+      安装：
+        pkill -f "node server/index.js" || true
+        chmod +x ~/Developer/cms/scripts/start-server.sh
+        cp ~/Developer/cms/scripts/com.tsinglan.pe-cms.plist ~/Library/LaunchAgents/
+        launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.tsinglan.pe-cms.plist
+
+      查看状态 / 日志：
+        launchctl list | grep pe-cms
+        tail -f ~/Developer/cms/logs/server.out
+
+      卸载：
+        launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.tsinglan.pe-cms.plist
+        rm ~/Library/LaunchAgents/com.tsinglan.pe-cms.plist
+
+      注意：本文件根元素之外不能有任何内容（包括注释），否则 launchd 会报
+      "Load failed: 5: Input/output error"。注释只能放在 <dict> 内部。
+    -->
+
     <key>Label</key>
     <string>com.tsinglan.pe-cms</string>
 
@@ -51,4 +57,5 @@
         <key>PATH</key>
         <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
     </dict>
+</dict>
 </plist>

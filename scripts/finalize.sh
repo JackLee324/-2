@@ -63,28 +63,46 @@ echo "  Token: ${EXPECTED_TOKEN:0:12}...（共 ${#EXPECTED_TOKEN} 位）"
 # ─────────────────────────────────────────────────────────────
 echo ""
 echo "[1/6] 重启服务"
-OLD_PIDS="$(pgrep -f 'node server/index.js' 2>/dev/null || true)"
-if [ -n "${OLD_PIDS:-}" ]; then
-  echo "  停止旧进程: $(echo "$OLD_PIDS" | tr '\n' ' ')"
-  # shellcheck disable=SC2086
-  kill $OLD_PIDS 2>/dev/null || true
-  for _ in $(seq 1 15); do
-    pgrep -f 'node server/index.js' >/dev/null 2>&1 || break
-    sleep 1
-  done
-  if pgrep -f 'node server/index.js' >/dev/null 2>&1; then
-    echo "  旧进程未退出，强制结束"
-    pkill -9 -f 'node server/index.js' 2>/dev/null || true
-    sleep 1
-  fi
-else
-  echo "  没有正在运行的实例"
+LAUNCHD_LABEL="com.tsinglan.pe-cms"
+LAUNCHD_DOMAIN="gui/$(id -u)"
+LAUNCHD_PLIST="$HOME/Library/LaunchAgents/$LAUNCHD_LABEL.plist"
+LAUNCHD_ACTIVE=0
+
+# 若服务由 launchd 托管，必须经由 launchd 重启。
+# 否则 KeepAlive 会在我们 kill 掉进程后立刻把它拉起来，与本脚本争抢 3000 端口。
+if command -v launchctl >/dev/null 2>&1 && launchctl print "$LAUNCHD_DOMAIN/$LAUNCHD_LABEL" >/dev/null 2>&1; then
+  LAUNCHD_ACTIVE=1
 fi
 
-mkdir -p logs
-nohup node server/index.js > logs/server.out 2>&1 &
-NEW_PID="${!:-}"          # 兜底：万一取不到也不让脚本崩
-echo "  已启动新进程 PID=${NEW_PID:-未知}"
+if [ "$LAUNCHD_ACTIVE" = "1" ]; then
+  echo "  检测到 launchd 托管，交由 launchd 重启"
+  echo "    job label: $LAUNCHD_LABEL"
+  launchctl kickstart -k "$LAUNCHD_DOMAIN/$LAUNCHD_LABEL" >/dev/null 2>&1 || \
+    echo "  ⚠️  kickstart 返回非零，继续按就绪探测判断"
+else
+  OLD_PIDS="$(pgrep -f 'node server/index.js' 2>/dev/null || true)"
+  if [ -n "${OLD_PIDS:-}" ]; then
+    echo "  停止旧进程: $(echo "$OLD_PIDS" | tr '\n' ' ')"
+    # shellcheck disable=SC2086
+    kill $OLD_PIDS 2>/dev/null || true
+    for _ in $(seq 1 15); do
+      pgrep -f 'node server/index.js' >/dev/null 2>&1 || break
+      sleep 1
+    done
+    if pgrep -f 'node server/index.js' >/dev/null 2>&1; then
+      echo "  旧进程未退出，强制结束"
+      pkill -9 -f 'node server/index.js' 2>/dev/null || true
+      sleep 1
+    fi
+  else
+    echo "  没有正在运行的实例"
+  fi
+
+  mkdir -p logs
+  nohup node server/index.js > logs/server.out 2>&1 &
+  NEW_PID="${!:-}"          # 兜底：万一取不到也不让脚本崩
+  echo "  已启动新进程 PID=${NEW_PID:-未知}"
+fi
 
 # 等待端口就绪（不依赖 PID，直接探测接口）
 READY=0
@@ -93,7 +111,11 @@ for _ in $(seq 1 30); do
   sleep 1
 done
 if [ "$READY" = "1" ]; then
-  ok "服务已在 $BASE 就绪（PID ${NEW_PID:-未知}）"
+  if [ "$LAUNCHD_ACTIVE" = "1" ]; then
+    ok "服务已在 $BASE 就绪（由 launchd 托管）"
+  else
+    ok "服务已在 $BASE 就绪（PID ${NEW_PID:-未知}）"
+  fi
 else
   bad "服务启动后 30 秒内未就绪，请看 logs/server.out"
 fi
